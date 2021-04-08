@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>OVRTKSP Control</title>
 
+		<link rel="stylesheet" href="css/global.css">
+		<link rel="stylesheet" href="css/control.css">
+
+		<script src="js/vue.min.js"></script>
+		<script src="js/websocket.js"></script>
+		<script src="js/control.js"></script>
 	</head>
 	<body>
-		control
+		<main>
+			<div v-for="row in rows" class="button-row">
+				<div v-for="col in columns" class="button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" @click="sendClick(col-1, row-1)">
+					{{ row }}
+				</div>
+			</div>
+		</main>
 	</body>
 </html>

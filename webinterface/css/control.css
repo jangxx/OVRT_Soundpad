@@ -1,0 +1,37 @@
+main {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-around;
+	height: 100%;
+}
+
+main .button-row {
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+
+.button {
+	height: 80%;
+	flex-grow: 1;
+	flex-basis: 0;
+	margin: 0 10px;
+	color: white;
+	/* transform: scale(1); */
+	transition: transform 0.3s;
+}
+
+.button.disabled {
+	opacity: 0.3;
+}
+
+.button.selected, .button:hover {
+	transform: scale(0.9);
+	opacity: 1 !important;
+}
+
+.button:active {
+	transform: scale(0.8);
+}
