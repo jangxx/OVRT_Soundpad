@@ -12,6 +12,9 @@ class WebsocketServer:
 		self._config = config
 		self._soundpad = sp_manager
 
+		self._index_sockets = set()
+		self._control_sockets = set()
+
 	def start(self):
 		port = self._config.get(["server", "ws_port"])
 
@@ -22,11 +25,39 @@ class WebsocketServer:
 		self._server.close()
 		await self._server.wait_closed()
 
-	def commandHandler(self, command, params):
-		pass
+	async def commandHandler(self, socket, command, params):
+		if command == "register":
+			if params["as"] == "index":
+				self._index_sockets.add(socket)
+			elif params["as"] == "control":
+				self._control_sockets.add(socket)
+
+			await self.emitEvent("settings-change", {
+				"board": self._config.get("board"),
+				"sounds": self._config.get("sounds"),
+			}, socket=socket, index_sockets=False, control_sockets=False)
+
+		elif command == "change-settings":
+			self._config.set(params["setting"], params["value"])
+			await self.emitEvent("settings-change", {
+				"board": self._config.get("board"),
+				"sounds": self._config.get("sounds"),
+			})
+
+	async def emitEvent(self, event, data, socket=None, index_sockets=True, control_sockets=True):
+		msg = json.dumps({ "type": "event", "event": event, "data": data })
+
+		if socket is not None:
+			await socket.send(msg)
+		if index_sockets:
+			for socket in self._index_sockets:
+				await socket.send(msg)
+		if control_sockets:
+			for socket in self._control_sockets:
+				await socket.send(msg)
 
 	async def connHandler(self, socket, path):
-		print("client connected")
+		print("Client connected")
 
 		try:
 			async for raw_msg in socket:
@@ -42,9 +73,12 @@ class WebsocketServer:
 				if msg["type"] == "command":
 					if not "command" in msg or not "params" in msg:
 						continue
-					self.commandHandler(msg["command"], msg["params"])
+					await self.commandHandler(socket, msg["command"], msg["params"])
 
-				print(msg)
+				# print(msg)
+
+				# await socket.send(json.dumps(msg))
+
                 # if msg == "register":
                 #     self._clients.add(socket)
                 # elif msg == "discover":
@@ -53,5 +87,8 @@ class WebsocketServer:
 		except websockets.ConnectionClosedError:
 			pass
 		finally:
-			# self._clients.discard(socket)
+			if socket in self._index_sockets:
+				self._index_sockets.discard(socket)
+			if socket in self._control_sockets:
+				self._control_sockets.discard(socket)
 			print("Client disconnected")

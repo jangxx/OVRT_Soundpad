@@ -1,9 +1,43 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>OVRTKSP Control</title>
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
+		<link rel="stylesheet" href="css/global.css">
+		<link rel="stylesheet" href="css/index.css">
+
+		<script src="js/vue.min.js"></script>
+		<script src="js/websocket.js"></script>
+		<script src="js/index.js"></script>
 	</head>
 	<body>
-		index
+		<main>
+			<img src="img/soundpad_logo.png" class="soundpad-logo">
+			<div class="launch-button button" @click="openOverlay()">Open Soundboard</div>
+
+			<div class="edit-box">
+				<h1>Settings</h1>
+
+				<div class="settings">
+					<div class="setting-container">
+						<h2>Rows</h2>
+						<div class="settings-inner">
+							<div class="button minus-button settings-button" @click="modRows(-1)">&minus;</div>
+							<div class="settings-value">{{ rows }}</div>
+							<div class="button plus-button settings-button" @click="modRows(1)">+</div>
+						</div>
+					</div>
+					<div class="setting-container">
+						<h2>Columns</h2>
+						<div class="settings-inner">
+							<div class="button minus-button settings-button" @click="modColumns(-1)">&minus;</div>
+							<div class="settings-value">{{ columns }}</div>
+							<div class="button plus-button settings-button" @click="modColumns(1)">+</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
 	</body>
 </html>

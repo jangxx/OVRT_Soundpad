@@ -1,10 +1,13 @@
-import json, os
+import json, os, pathlib
 
 from appdirs import user_config_dir
 
 class Config:
 	def __init__(self):
 		self._config_path = os.path.join(user_config_dir("OVRTK Soundpad", "jangxx"), "config.json")
+
+		# create config dir if it doesn't exist
+		pathlib.Path(user_config_dir("OVRTK Soundpad", "jangxx")).mkdir(parents=True, exist_ok=True)
 
 		self._config = {
 			"board": {
@@ -25,6 +28,9 @@ class Config:
 	def get(self, path):
 		ret = self._config
 
+		if not type(path) is list:
+			path = [ path ]
+
 		for e in path:
 			ret = ret[e]
 
@@ -38,5 +44,5 @@ class Config:
 
 		elem[path[-1]] = value
 
-		with open(self._config_path, "w") as configfile:
+		with open(self._config_path, "w+") as configfile:
 			json.dump(self._config, configfile)

@@ -3,11 +3,18 @@ const app = new Vue({
 		connected: false,
 		rows: 3,
 		columns: 4,
-		contents: {},
 	},
 	methods: {
-		sendClick: function(col, row) {
-			this.ws.sendCommand("box-clicked", { col, row })
+		openOverlay: function() {
+
+		},
+		modRows: function(dir) {
+			this.rows += dir;
+			this.ws.sendCommand("change-settings", { setting: ["board", "rows" ], value: this.rows })
+		},
+		modColumns: function(dir) {
+			this.columns += dir;
+			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
 		}
 	},
 	created: function() {
@@ -30,7 +37,7 @@ const app = new Vue({
 			this.columns = evt.detail.board.columns;
 		});
 
-		this.ws.open("control");
+		this.ws.open("index");
 	},
 });
 

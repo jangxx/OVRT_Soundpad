@@ -47,17 +47,22 @@ class SoundpadRemote:
 		if self._handle is None:
 			raise Exception("Remote is not initialized")
 
-		win32file.WriteFile(self._handle, str.encode(request))
+		try:
+			win32file.WriteFile(self._handle, str.encode(request))
 
-		bufSize = 4096
-		win32file.SetFilePointer(self._handle, 0, win32file.FILE_BEGIN)
-		result, data = win32file.ReadFile(self._handle, bufSize, None) 
-		buf = data
-		while len(data) == bufSize:            
-			result, data = win32file.ReadFile(self._handle, bufSize, None)
-			buf += data
+			bufSize = 4096
+			win32file.SetFilePointer(self._handle, 0, win32file.FILE_BEGIN)
+			result, data = win32file.ReadFile(self._handle, bufSize, None) 
+			buf = data
+			while len(data) == bufSize:            
+				result, data = win32file.ReadFile(self._handle, bufSize, None)
+				buf += data
+			return buf
 
-		return buf
+		except pywintypes.error as e:
+			if e.args[0] == 233:
+				self.deinit()
+			raise e
 
 	def playSound(self, index, playSpeakers=True, playMic=True):
 		resp = self._sendRequest(f"DoPlaySound({index}, {playSpeakers}, {playMic})")

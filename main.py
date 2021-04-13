@@ -27,17 +27,17 @@ ws_server = WebsocketServer(global_config, sp_manager)
 trayicon = None
 
 sp_manager.start()
-sp_manager._updateSoundlist()
 
 def exit():
 	async_stop_signal.set_result(True)
+	sp_manager.stop()
 	trayicon.stop()
 
 traymenu = pystray.Menu(
 	pystray.MenuItem("Exit", action=exit)
 )
 
-trayimage = Image.open("./testicon.png")
+trayimage = Image.open("./ovrtk_sp_icon.png")
 
 trayicon = pystray.Icon("ovrtk_sp", title="OVR Toolkit Soundpad Bridge", menu=traymenu)
 trayicon.icon = trayimage
