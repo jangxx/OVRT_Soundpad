@@ -17,7 +17,7 @@ const app = new Vue({
 			for (let c = 0; c < this.columns; c++) {
 				const row = [];
 				for (let r = 0; r < this.rows; r++) {
-					const sound_index = c + this.columns * r;
+					const sound_index = `${r},${c}`;
 
 					if (sound_index in this.sounds && this.sounds[sound_index] in this.full_soundlist) {
 						row.push(this.full_soundlist[this.sounds[sound_index]]);
@@ -48,7 +48,7 @@ const app = new Vue({
 					this.selected_tile.col = col;
 				});
 			} else {
-				const sound_index = col + this.columns * row;
+				const sound_index = `${row},${col}`;
 
 				if (sound_index in this.sounds) {
 					this.ws.sendCommand("play-sound", { sound: this.sounds[sound_index] })
@@ -79,7 +79,7 @@ const app = new Vue({
 			this.rows = evt.detail.board.rows;
 			this.columns = evt.detail.board.columns;
 
-			// console.log("sounds", JSON.stringify(evt.detail.sounds));
+			console.log("sounds", JSON.stringify(evt.detail.sounds));
 			this.sounds = evt.detail.sounds;
 			this.refreshSoundlist();
 		});

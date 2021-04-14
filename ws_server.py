@@ -50,6 +50,10 @@ class WebsocketServer:
 			await self.emitEvent("state-update", self._state, socket=socket, index_sockets=False, control_sockets=False)
 
 		elif command == "change-settings":
+			if params["setting"] == [ "board", "rows" ] or params["setting"] == [ "board", "columns" ]:
+				if not 1 <= params["value"] <= 10:
+					return # invalid values are not allowed
+
 			self._config.set(params["setting"], params["value"])
 			await self.emitEvent("settings-change", {
 				"board": self._config.get("board"),
@@ -63,7 +67,7 @@ class WebsocketServer:
 		elif command == "select-sound":
 			# calc index of the sound
 			board = self._config.get("board")
-			sound_index = params["row"] * board["columns"] + params["col"]
+			sound_index = f"{params['row']},{params['col']}"
 
 			self._config.set([ "sounds", sound_index ], params["sound"])
 			await self.emitEvent("settings-change", {

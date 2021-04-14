@@ -36,8 +36,6 @@ class WebSocketConn extends EventTarget {
 		});
 
 		this._socket.addEventListener("error", err => {
-			console.log(err);
-
 			this._socket = null;
 			this.dispatchEvent(new Event("close"));
 
@@ -50,7 +48,6 @@ class WebSocketConn extends EventTarget {
 
 		this._socket.addEventListener("message", evt => {
 			const msg = JSON.parse(evt.data);
-			// console.log("received", evt.data);
 
 			if (msg.type == "event") {
 				this.dispatchEvent(new CustomEvent(msg.event, { detail: msg.data }));

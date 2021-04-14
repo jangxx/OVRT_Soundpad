@@ -12,10 +12,18 @@ const app = new Vue({
 		},
 		modRows: function(dir) {
 			this.rows += dir;
+
+			if (this.rows < 1) this.rows = 1;
+			if (this.rows > 10) this.rows = 10;
+
 			this.ws.sendCommand("change-settings", { setting: ["board", "rows" ], value: this.rows })
 		},
 		modColumns: function(dir) {
 			this.columns += dir;
+
+			if (this.columns < 1) this.columns = 1;
+			if (this.columns > 10) this.columns = 10;
+
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
 		},
 		toggleEditMode: function() {
