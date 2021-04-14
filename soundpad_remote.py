@@ -1,3 +1,4 @@
+from threading import Lock
 import win32file, pywintypes
 
 class NoPipeError(Exception):
@@ -11,6 +12,7 @@ class BrokenPipeError(Exception):
 class SoundpadRemote:
 	def __init__(self):
 		self._handle = None
+		self._request_lock = Lock()
 
 	def init(self):
 		if self._handle is not None:
@@ -44,6 +46,8 @@ class SoundpadRemote:
 		return self._handle is not None
 
 	def _sendRequest(self, request):
+		self._request_lock.acquire()
+
 		if self._handle is None:
 			raise Exception("Remote is not initialized")
 
@@ -63,6 +67,9 @@ class SoundpadRemote:
 			if e.args[0] == 233:
 				self.deinit()
 			raise e
+
+		finally:
+			self._request_lock.release()
 
 	def playSound(self, index, playSpeakers=True, playMic=True):
 		resp = self._sendRequest(f"DoPlaySound({index}, {playSpeakers}, {playMic})")

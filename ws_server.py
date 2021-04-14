@@ -12,6 +12,12 @@ class WebsocketServer:
 		self._config = config
 		self._soundpad = sp_manager
 
+		# ephemeral state
+		self._state = {
+			"edit_mode": False,
+			"soundpad_connected": False,
+		}
+
 		self._index_sockets = set()
 		self._control_sockets = set()
 
@@ -25,6 +31,10 @@ class WebsocketServer:
 		self._server.close()
 		await self._server.wait_closed()
 
+	async def changeState(self, key, value):
+		self._state[key] = value
+		await self.emitEvent("state-update", self._state)
+
 	async def commandHandler(self, socket, command, params):
 		if command == "register":
 			if params["as"] == "index":
@@ -37,12 +47,34 @@ class WebsocketServer:
 				"sounds": self._config.get("sounds"),
 			}, socket=socket, index_sockets=False, control_sockets=False)
 
+			await self.emitEvent("state-update", self._state, socket=socket, index_sockets=False, control_sockets=False)
+
 		elif command == "change-settings":
 			self._config.set(params["setting"], params["value"])
 			await self.emitEvent("settings-change", {
 				"board": self._config.get("board"),
 				"sounds": self._config.get("sounds"),
 			})
+
+		elif command == "set-edit-mode":
+			self._state["edit_mode"] = params["value"]
+			await self.emitEvent("state-update", self._state)
+
+		elif command == "select-sound":
+			# calc index of the sound
+			board = self._config.get("board")
+			sound_index = params["row"] * board["columns"] + params["col"]
+
+			self._config.set([ "sounds", sound_index ], params["sound"])
+			await self.emitEvent("settings-change", {
+				"board": self._config.get("board"),
+				"sounds": self._config.get("sounds"),
+			}, index_sockets=False)
+
+		elif command == "play-sound":
+			sound_id = params["sound"]
+			self._soundpad.playSound(sound_id)
+
 
 	async def emitEvent(self, event, data, socket=None, index_sockets=True, control_sockets=True):
 		msg = json.dumps({ "type": "event", "event": event, "data": data })

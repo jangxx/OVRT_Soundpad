@@ -6,16 +6,29 @@
 
 		<link rel="stylesheet" href="css/global.css">
 		<link rel="stylesheet" href="css/control.css">
+		<link rel="icon" href="img/ovrtk_sp_icon.png">
 
-		<script src="js/vue.min.js"></script>
+		<script src="js/vue.js"></script>
 		<script src="js/websocket.js"></script>
 		<script src="js/control.js"></script>
 	</head>
 	<body>
 		<main>
+			<div v-if="display_soundlist" class="overlay">
+				<div class="overlay-background" @click.self="display_soundlist = false"></div>
+				<div class="overlay-box">
+					<div class="soundlist-item" @click="selectSound(null)">NONE</div>
+					<div class="soundlist-item" v-for="sound_id in soundlist_order" :key="sound_id" @click="selectSound(sound_id)">{{ full_soundlist[sound_id].title }}</div>
+				</div>
+			</div>
+
 			<div v-for="row in rows" class="button-row">
-				<div v-for="col in columns" class="button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" @click="sendClick(col-1, row-1)">
-					{{ row }}
+				<div v-for="col in columns" class="button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
+					<div v-if="edit_mode" class="edit-mode-overlay"><div>&#x270E;</div></div>
+					<div class="button-content" :class="{ 'overlay-visible': edit_mode }">
+						<!-- {{ (row-1) * columns + (col-1) }} -->
+						<div class="title">{{ full_board[col-1][row-1] !== null ? full_board[col-1][row-1].title : "" }}</div>
+					</div>
 				</div>
 			</div>
 		</main>

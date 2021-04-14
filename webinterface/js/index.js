@@ -1,6 +1,8 @@
 const app = new Vue({
 	data: {
 		connected: false,
+		edit_mode: false,
+		sp_connected: false,
 		rows: 3,
 		columns: 4,
 	},
@@ -15,6 +17,10 @@ const app = new Vue({
 		modColumns: function(dir) {
 			this.columns += dir;
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
+		},
+		toggleEditMode: function() {
+			this.edit_mode = !this.edit_mode;
+			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });
 		}
 	},
 	created: function() {
@@ -35,6 +41,12 @@ const app = new Vue({
 		this.ws.addEventListener("settings-change", evt => {
 			this.rows = evt.detail.board.rows;
 			this.columns = evt.detail.board.columns;
+		});
+
+		this.ws.addEventListener("state-update", evt => {
+			console.log(evt.detail);
+			this.edit_mode = evt.detail.edit_mode;
+			this.sp_connected = evt.detail.soundpad_co
 		});
 
 		this.ws.open("index");

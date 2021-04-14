@@ -26,6 +26,7 @@ sp_manager = SoundpadManager()
 ws_server = WebsocketServer(global_config, sp_manager)
 trayicon = None
 
+app.ctx.sp_manager = sp_manager
 sp_manager.start()
 
 def exit():
@@ -46,7 +47,13 @@ trayicon.icon = trayimage
 async def async_main():
 	await http_server # wait for the http server to start
 
+	initialized_state = False
+
 	while not async_stop_signal.done():
+		if initialized_state != sp_manager.is_initialized():
+			initialized_state = sp_manager.is_initialized()
+			await ws_server.changeState("soundpad_connected", initialized_state)
+
 		await asyncio.sleep(0.1)
 
 	# await asyncio.wait_for(async_stop_signal, None)

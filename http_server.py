@@ -6,5 +6,9 @@ app = Sanic("ovrtk_sp")
 async def identify(request):
 	return response.text("ok")
 
+@app.route("/api/soundlist")
+async def get_soundlist(request):
+	return response.json({ "soundlist": app.ctx.sp_manager.getSoundList() })
+
 app.static("/", "./webinterface/index.html")
 app.static("/", "./webinterface")

@@ -23,10 +23,10 @@ class SoundpadManager(Thread):
 			if not self._remote.initialized():
 				self.try_init()
 
-			if self._lastSLupdate is None or (datetime.datetime.now() - self._lastSLupdate).total_seconds() > 1:
+			if self._lastSLupdate is None or (datetime.datetime.now() - self._lastSLupdate).total_seconds() > 10:
 				self._updateSoundlist()
 
-			self._stop_event.wait(1) # update every 10 sec
+			self._stop_event.wait(5) # update every 5 sec
 
 	def stop(self):
 		self._stop_event.set()
@@ -38,13 +38,16 @@ class SoundpadManager(Thread):
 		except:
 			pass
 
+	def is_initialized(self):
+		return self._remote.initialized()
+
 	def _updateSoundlist(self):
 		if not self._remote.initialized():
 			return
 
 		self._sl_lock.acquire()
 
-		print("update")
+		# print("update")
 
 		try:
 			soundlist_xml = self._remote.getSoundList()
@@ -56,7 +59,7 @@ class SoundpadManager(Thread):
 
 			for sound in root.iter("Sound"):
 				if sound.tag == "Sound":
-					sound_id = hashlib.sha1(str.encode(f"{sound.attrib['title']}")).digest()
+					sound_id = hashlib.sha1(str.encode(f"{sound.attrib['title']}")).hexdigest()
 
 					self._soundlist[sound_id] = { 
 						"index": sound.attrib["index"],
@@ -67,6 +70,13 @@ class SoundpadManager(Thread):
 			self._lastSLupdate = datetime.datetime.now()
 		finally: # always run this
 			self._sl_lock.release()
+
+	def playSound(self, sound_id):
+		if not sound_id in self._soundlist:
+			return
+
+		idx = self._soundlist[sound_id]["index"]
+		self._remote.playSound(idx)
 
 	def getSoundList(self):
 		try:

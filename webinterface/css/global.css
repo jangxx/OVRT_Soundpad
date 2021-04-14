@@ -16,10 +16,15 @@ html, body {
 	opacity: 0.3;
 }
 
+.button.disabled:hover, .button.disabled:active {
+	transform: none !important;
+	opacity: 0.3;
+}
+/* 
 .button.selected, .button:hover {
 	transform: scale(1.1);
-	opacity: 1 !important;
-}
+	opacity: 1;
+} */
 
 .button:active {
 	transform: scale(0.9);
