@@ -8,7 +8,38 @@ const app = new Vue({
 	},
 	methods: {
 		openOverlay: function() {
+			// if (this.control_overlay == null) {
+				this.ovrtk.spawnOverlay({
+					posX: -1.5934797,
+					posY: 0.6742801,
+					posZ: 0.4708833,
+					rotX: 84.97573852,
+					rotY: 128.65335083,
+					rotZ: 106.8055648,
+					size: 0.4,
+					opacity: 1,
+					curvature: 0,
+					framerate: 60,
+					ecoMode: true,
+					lookHiding: true,
+					attachedDevice: 3,
+					shouldSave: true
+				}).then(overlay => {
+					this.control_overlay = overlay;
+					// console.log(overlay);
 
+					overlay.setContent(0, {
+						url: "http://localhost:64152/control.html",
+						width: 800,
+						height: 600,
+					});
+				});
+			// }
+			/* else {
+				this.control_overlay.getTransform().then(transform => {
+					console.log(transform);
+				});
+			}*/
 		},
 		modRows: function(dir) {
 			this.rows += dir;
@@ -33,6 +64,10 @@ const app = new Vue({
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
+		this.ovrtk = new OVRTKAPi();
+		this.ovrtk.start();
+
+		this.control_overlay = null;
 
 		this.ws.addEventListener("open", () => {
 			this.connected = true;

@@ -10,11 +10,11 @@
 
 		<script src="js/vue.min.js"></script>
 		<script src="js/websocket.js"></script>
+		<script src="js/ovrtk.js"></script>
 		<script src="js/index.js"></script>
 	</head>
 	<body>
 		<main>
-			<img src="img/soundpad_logo.png" class="soundpad-logo">
 			<div class="launch-button button" @click="openOverlay()">Open Soundboard</div>
 
 			<div class="edit-box">
@@ -42,7 +42,7 @@
 						<div class="settings-inner">
 							<!-- <div class="checkbox"></div> -->
 							<div class="settings-value edit-mode-checkbox" :class="{ 'checked': edit_mode }" @click="toggleEditMode()"></div>
-							<div>Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opened.</div>
+							<div style="font-size: 12px;">Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opens.</div>
 						</div>
 					</div>
 				</div>
