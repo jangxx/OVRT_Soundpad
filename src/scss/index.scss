@@ -1,10 +1,15 @@
 @import "global";
 
 main {
+	width: 380px;
+	margin-left: auto;
+	margin-right: auto;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	color: white;
+
+
 }
 
 .soundpad-logo {
@@ -12,92 +17,55 @@ main {
 	width: 80px;
 }
 
-.launch-button {
-	margin-top: 40px;
-	border-color: white;
-	border-style: solid;
-	border-width: 5px;
-	display: inline-block;
-	padding: 20px;
-	font-size: 30px;
-	color: white;
-	background-color: #d0001f;
-}
-
-.edit-box {
-	margin-top: 40px;
-	width: 80%;
-}
-
-.edit-box h1 {
-	margin-top: 0px;
-	margin-bottom: 10px;
-	font-size: 20px;
-}
-
-.setting-container {
-	/* display: inline-block; */
-	/* border-color: white;
-	border-style: solid;
-	border-width: 1px; */
-	/* width: 50%; */
-	padding: 5px;
-	flex-grow: 1;
-	flex-shrink: 0;
-	flex-basis: 45%;
-	margin-top: 5px;
-}
-
-.setting-container h2 {
-	margin: 0px;
-	text-align: center;
-	font-size: 15px;
-}
+// .launch-button {
+// 	margin-top: 40px;
+// 	border-color: white;
+// 	border-style: solid;
+// 	border-width: 5px;
+// 	display: inline-block;
+// 	padding: 20px;
+// 	font-size: 30px;
+// 	color: white;
+// 	background-color: #d0001f;
+// }
 
 .settings {
 	display: flex;
 	flex-wrap: wrap;
-}
 
-.settings-inner {
-	display: flex;
-	align-items: center;
-	margin-top: 5px;
-}
+	.setting-container {
+		padding: 5px;
+		// width: 50%;
+		flex-grow: 1;
+		// flex-shrink: 0;
+		// flex-basis: 45%;
+		margin-top: 5px;
+		
+		.button {
+			margin: 5px;
+		}
 
-.settings-value, .settings-button {
-	/* height: 30px; */
-	flex-grow: 1;
-	flex-basis: 0;
-}
+		h2 {
+			margin: 0px;
+			text-align: center;
+			font-size: 15px;
+		}
 
-.plus-button, .minus-button, .settings-value {
-	font-size: 30px;
-	text-align: center;
-}
+		.settings-inner {
+			display: flex;
+			align-items: center;
+			margin-top: 5px;
 
-.plus-button {
-	background-color: #0AA829;
-}
-
-.minus-button {
-	background-color: #d0001f;
-}
-
-.edit-mode-checkbox {
-	margin-right: 20px;
-	border-color: white;
-	border-width: 5px;
-	border-style: solid;
-	width: 50px;
-	height: 50px;
-	flex-grow: 1;
-	flex-shrink: 0;
-	flex-basis: 50px;
-	cursor: pointer;
-}
-
-.edit-mode-checkbox.checked::before {
-	content: "\2713";
-	font-size: 35px;
+			.round-switch {
+				flex-shrink: 0;
+			}
+		}
+		
+		.settings-value {
+			text-align: center;
+			flex-grow: 1;
+			// flex-basis: 0;
+			width: 30px;
+		}
+	}
 }

@@ -2,6 +2,15 @@ const Vue = require("vue/dist/vue.common");
 const { OVRT } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
 
+Vue.component("round-switch", {
+	template: `
+<label class="round-switch">
+	<input type="checkbox" :checked="value" :disabled="disabled" @input="$emit('input', $event.target.checked)">
+	<span class="slider round" :class="{'disabled': disabled }"></span>
+</label>`,
+	props: [ "value", "disabled" ],
+});
+
 const app = new Vue({
 	data: {
 		connected: false,
@@ -12,7 +21,7 @@ const app = new Vue({
 	},
 	methods: {
 		openOverlay: function() {
-			// if (this.control_overlay == null) {
+			if (this.control_overlay == null) {
 				this.ovrt_api.spawnOverlay({
 					posX: -1.5934797,
 					posY: 0.6742801,
@@ -33,12 +42,12 @@ const app = new Vue({
 					// console.log(overlay);
 
 					overlay.setContent(0, {
-						url: "http://localhost:64152/control.html",
+						url: "control.html",
 						width: 800,
 						height: 600,
 					});
 				});
-			// }
+			}
 			/* else {
 				this.control_overlay.getTransform().then(transform => {
 					console.log(transform);

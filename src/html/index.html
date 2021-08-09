@@ -13,33 +13,30 @@
 		<main>
 			<div class="launch-button button" @click="openOverlay()">Open Soundboard</div>
 
-			<div class="edit-box">
-				<h1>Settings</h1>
+			<h1>Settings</h1>
 
-				<div class="settings">
-					<div class="setting-container">
-						<h2>Rows</h2>
-						<div class="settings-inner">
-							<div class="button minus-button settings-button" @click="modRows(-1)">&minus;</div>
-							<div class="settings-value">{{ rows }}</div>
-							<div class="button plus-button settings-button" @click="modRows(1)">+</div>
-						</div>
+			<div class="settings">
+				<div class="setting-container">
+					<h2>Rows</h2>
+					<div class="settings-inner">
+						<div class="button red small" @click="modRows(-1)">&minus;</div>
+						<div class="settings-value">{{ rows }}</div>
+						<div class="button green small" @click="modRows(1)">+</div>
 					</div>
-					<div class="setting-container">
-						<h2>Columns</h2>
-						<div class="settings-inner">
-							<div class="button minus-button settings-button" @click="modColumns(-1)">&minus;</div>
-							<div class="settings-value">{{ columns }}</div>
-							<div class="button plus-button settings-button" @click="modColumns(1)">+</div>
-						</div>
+				</div>
+				<div class="setting-container">
+					<h2>Columns</h2>
+					<div class="settings-inner">
+						<div class="button red small" @click="modColumns(-1)">&minus;</div>
+						<div class="settings-value">{{ columns }}</div>
+						<div class="button green small" @click="modColumns(1)">+</div>
 					</div>
-					<div class="setting-container">
-						<h2>Edit Mode</h2>
-						<div class="settings-inner">
-							<!-- <div class="checkbox"></div> -->
-							<div class="settings-value edit-mode-checkbox" :class="{ 'checked': edit_mode }" @click="toggleEditMode()"></div>
-							<div style="font-size: 12px;">Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opens.</div>
-						</div>
+				</div>
+				<div class="setting-container">
+					<h2>Edit Mode</h2>
+					<div class="settings-inner">
+						<round-switch class="settings-value" v-model="edit_mode"></round-switch>
+						<div style="font-size: 12px;">Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opens.</div>
 					</div>
 				</div>
 			</div>
