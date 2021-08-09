@@ -6,11 +6,11 @@ build_exe_options = {
 	"packages": ["pystray"],
 	"excludes": ["tkinter"],
 	"include_files": [
-		("testicon.png", "./testicon.png"),
-		("webinterface", "./webinterface"),
+		("./assets/img/ovrt_sp_icon.png", "ovrt_sp_icon.png"),
 	],
 	"zip_include_packages": "*",
 	"zip_exclude_packages": "pystray",
+	"build_exe": "./dist/bridge",
 }
 
 # GUI applications require a different base on Windows (the default is for
@@ -23,5 +23,5 @@ setup(name = "ovrt_sp",
 	version = "1.0",
     description = "OVR Toolkit Soundpad Integration",
     options = { "build_exe": build_exe_options },
-    executables = [ Executable("main.py", base=base) ],
+    executables = [ Executable("server/main.py", base=base, target_name="ovrt_soundpad_bridge") ],
 )

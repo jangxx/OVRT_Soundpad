@@ -38,7 +38,7 @@ traymenu = pystray.Menu(
 	pystray.MenuItem("Exit", action=exit)
 )
 
-trayimage = Image.open("./ovrt_sp_icon.png")
+trayimage = Image.open("./assets/img/ovrt_sp_icon.png")
 
 trayicon = pystray.Icon("ovrt_sp", title="OVR Toolkit Soundpad Bridge", menu=traymenu)
 trayicon.icon = trayimage

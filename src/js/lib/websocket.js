@@ -66,3 +66,5 @@ class WebSocketConn extends EventTarget {
 		}
 	}
 }
+
+module.exports = { WebSocketConn };

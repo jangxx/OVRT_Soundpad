@@ -1,0 +1,39 @@
+{
+  "name": "ovrt_soundpad",
+  "version": "1.0.0",
+  "description": "Build tools to build the webinterface components",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jangxx/OVRT_Soundpad.git"
+  },
+  "author": "jangxx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jangxx/OVRT_Soundpad/issues"
+  },
+  "homepage": "https://github.com/jangxx/OVRT_Soundpad#readme",
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "del": "^6.0.0",
+    "envify": "^4.1.0",
+    "express": "^4.17.1",
+    "fast-sort": "^3.0.2",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.1.6",
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-if": "^3.0.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-uglify-es": "^2.0.0",
+    "gulp-util": "^3.0.8",
+    "socket.io-client": "^4.0.1",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "vue": "^2.6.12"
+  }
+}

@@ -1,3 +1,6 @@
+const Vue = require("vue/dist/vue.common");
+const { WebSocketConn } = require("../lib/websocket");
+
 const app = new Vue({
 	data: {
 		connected: false,
@@ -33,7 +36,7 @@ const app = new Vue({
 	},
 	methods: {
 		refreshSoundlist: function() {
-			return fetch("/api/soundlist").then(resp => resp.json()).then(data => {
+			return fetch("http://localhost:64152/api/soundlist").then(resp => resp.json()).then(data => {
 				this.full_soundlist = data.soundlist;
 				this.soundlist_order = Object.keys(data.soundlist);
 		

@@ -1,3 +1,7 @@
+const Vue = require("vue/dist/vue.common");
+const { OVRT } = require("../lib/ovrt-helper");
+const { WebSocketConn } = require("../lib/websocket");
+
 const app = new Vue({
 	data: {
 		connected: false,

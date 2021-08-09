@@ -438,9 +438,7 @@ class OVRT {
 }
 
 // uncomment this to use the helper as a common.js module
-/*
 module.exports = {
 	OVRT,
 	OVRTOverlay,
 };
-*/
