@@ -9,7 +9,7 @@ const app = new Vue({
 	methods: {
 		openOverlay: function() {
 			// if (this.control_overlay == null) {
-				this.ovrtk.spawnOverlay({
+				this.ovrt_api.spawnOverlay({
 					posX: -1.5934797,
 					posY: 0.6742801,
 					posZ: 0.4708833,
@@ -64,8 +64,7 @@ const app = new Vue({
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
-		this.ovrtk = new OVRTKAPi();
-		this.ovrtk.start();
+		this.ovrt_api = new OVRT();
 
 		this.control_overlay = null;
 

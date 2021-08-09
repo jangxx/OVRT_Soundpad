@@ -19,7 +19,7 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-setup(name = "ovrtk_sp",
+setup(name = "ovrt_sp",
 	version = "1.0",
     description = "OVR Toolkit Soundpad Integration",
     options = { "build_exe": build_exe_options },

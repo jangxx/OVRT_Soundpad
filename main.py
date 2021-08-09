@@ -38,9 +38,9 @@ traymenu = pystray.Menu(
 	pystray.MenuItem("Exit", action=exit)
 )
 
-trayimage = Image.open("./ovrtk_sp_icon.png")
+trayimage = Image.open("./ovrt_sp_icon.png")
 
-trayicon = pystray.Icon("ovrtk_sp", title="OVR Toolkit Soundpad Bridge", menu=traymenu)
+trayicon = pystray.Icon("ovrt_sp", title="OVR Toolkit Soundpad Bridge", menu=traymenu)
 trayicon.icon = trayimage
 
 # all asyncio related stuff happens here

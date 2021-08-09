@@ -62,7 +62,11 @@ main .button-row {
 
 .edit-mode-overlay > div {
 	white-space: nowrap;
-  	overflow: hidden;
+	overflow: hidden;
+	background: rgba(0,0,0,0.5);
+	padding: 20px;
+	border-radius: 20px;
+	line-height: 60px;
 }
 
 .overlay {

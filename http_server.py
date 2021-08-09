@@ -1,6 +1,6 @@
 from sanic import Sanic, response
 
-app = Sanic("ovrtk_sp")
+app = Sanic("ovrt_sp")
 
 @app.route("/api/identify")
 async def identify(request):

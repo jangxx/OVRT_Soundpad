@@ -75,7 +75,7 @@ class SoundpadRemote:
 		resp = self._sendRequest(f"DoPlaySound({index}, {playSpeakers}, {playMic})")
 
 		if not resp.startswith(b"R-200"):
-			raise Exception(str(resp, "ascii"))
+			raise Exception(str(resp, "utf8"))
 
 		return True
 
@@ -83,6 +83,6 @@ class SoundpadRemote:
 		resp = self._sendRequest("GetSoundlist()")
 
 		if resp.startswith(b"R-"):
-			raise Exception(str(resp, "ascii"))
+			raise Exception(str(resp, "utf8"))
 
-		return str(resp, "ascii")
+		return str(resp, "utf8")

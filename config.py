@@ -4,10 +4,10 @@ from appdirs import user_config_dir
 
 class Config:
 	def __init__(self):
-		self._config_path = os.path.join(user_config_dir("OVRTK Soundpad", "jangxx"), "config.json")
+		self._config_path = os.path.join(user_config_dir("OVRT Soundpad", "jangxx"), "config.json")
 
 		# create config dir if it doesn't exist
-		pathlib.Path(user_config_dir("OVRTK Soundpad", "jangxx")).mkdir(parents=True, exist_ok=True)
+		pathlib.Path(user_config_dir("OVRT Soundpad", "jangxx")).mkdir(parents=True, exist_ok=True)
 
 		self._config = {
 			"board": {
