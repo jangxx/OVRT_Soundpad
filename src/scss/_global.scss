@@ -142,3 +142,25 @@ html, body {
 		border-radius: 50%;
 	}
 }
+
+.modal-background {
+	position: fixed;
+	z-index: 1000;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0,0,0,0.5);
+
+	.modal-dialog {
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 20%;
+		padding: 20px;
+		background-color: rgb(95, 97, 97);
+		text-align: center;
+		color: white;
+
+		a, a:hover, a:active {
+			color: white;
+		}
+	}
+}

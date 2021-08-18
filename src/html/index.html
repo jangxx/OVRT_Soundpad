@@ -11,6 +11,24 @@
 	</head>
 	<body>
 		<main>
+			<div class="modal-background" v-if="!connected">
+				<div class="modal-dialog">
+					<h1>Bridge app is not running</h1>
+					<span>Please follow the instructions on <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
+				</div>
+			</div>
+
+			<div class="modal-background" v-if="connected && !sp_connected">
+				<div class="modal-dialog">
+					<h1>Soundpad is not running</h1>
+					<span>
+						This app only works in conjunction with <a href="https://leppsoft.com/soundpad/en/">Soundpad</a>. 
+						Please start it in order to use this app.
+						It may take up to five seconds for this message to disappear.
+					</span>
+				</div>
+			</div>
+
 			<div class="launch-button button" @click="openOverlay()">Open Soundboard</div>
 
 			<h1>Settings</h1>
@@ -35,8 +53,8 @@
 				<div class="setting-container">
 					<h2>Edit Mode</h2>
 					<div class="settings-inner">
-						<round-switch class="settings-value" v-model="edit_mode"></round-switch>
-						<div style="font-size: 12px;">Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opens.</div>
+						<round-switch v-model="edit_mode" @input="toggleEditMode"></round-switch>
+						<div class="label">Turning on Edit Mode allows you to assign sounds to the different soundboard buttons. Simply click on a button on the soundboard and select a song from the popup that opens.</div>
 					</div>
 				</div>
 			</div>

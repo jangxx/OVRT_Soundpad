@@ -71,13 +71,13 @@ const app = new Vue({
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
 		},
 		toggleEditMode: function() {
-			this.edit_mode = !this.edit_mode;
+			console.log("toggled")
 			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });
 		}
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
-		this.ovrt_api = new OVRT();
+		this.ovrt_api = new OVRT({ function_queue: true });
 
 		this.control_overlay = null;
 
@@ -101,7 +101,7 @@ const app = new Vue({
 		this.ws.addEventListener("state-update", evt => {
 			console.log(evt.detail);
 			this.edit_mode = evt.detail.edit_mode;
-			this.sp_connected = evt.detail.soundpad_co
+			this.sp_connected = evt.detail.soundpad_connected;
 		});
 
 		this.ws.open("index");

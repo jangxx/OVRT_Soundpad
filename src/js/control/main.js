@@ -4,6 +4,7 @@ const { WebSocketConn } = require("../lib/websocket");
 const app = new Vue({
 	data: {
 		connected: false,
+		sp_connected: false,
 		edit_mode: false,
 		rows: 3,
 		columns: 4,
@@ -13,6 +14,18 @@ const app = new Vue({
 		soundlist_order: [],
 		sounds: {},
 		selected_tile: { row: null, col: null },
+		soundlist_scroll: {
+			scrollTop: 0,
+			scrollHeight: 0,
+			offsetHeight: 0,
+			animation: {
+				running: false,
+				start: 0,
+				duration: 0,
+				startScroll: 0,
+				scrollDist: 0,
+			}
+		},
 	},
 	computed: {
 		full_board: function() {
@@ -38,7 +51,7 @@ const app = new Vue({
 		refreshSoundlist: function() {
 			return fetch("http://localhost:64152/api/soundlist").then(resp => resp.json()).then(data => {
 				this.full_soundlist = data.soundlist;
-				this.soundlist_order = Object.keys(data.soundlist);
+				this.soundlist_order = Object.keys(data.soundlist).slice(0, 2);
 		
 				this.soundlist_order.sort((a, b) => Number(data.soundlist[a].index) - Number(data.soundlist[b].index));
 			});
@@ -49,6 +62,10 @@ const app = new Vue({
 					this.display_soundlist = true;
 					this.selected_tile.row = row;
 					this.selected_tile.col = col;
+
+					Vue.nextTick(() => {
+						this.update_soundlist_scroll();
+					});
 				});
 			} else {
 				const sound_index = `${row},${col}`;
@@ -61,6 +78,52 @@ const app = new Vue({
 		selectSound: function(sound_id) {
 			this.ws.sendCommand("select-sound", { row: this.selected_tile.row, col: this.selected_tile.col, sound: sound_id });
 			this.display_soundlist = false;
+		},
+		resize: function() {
+			if (this.$refs.soundlist !== undefined) {
+				this.update_soundlist_scroll();
+			}
+		},
+		update_soundlist_scroll: function() {
+			this.soundlist_scroll.scrollTop = this.$refs.soundlist.scrollTop;
+			this.soundlist_scroll.scrollHeight = this.$refs.soundlist.scrollHeight;
+			this.soundlist_scroll.offsetHeight = this.$refs.soundlist.offsetHeight;
+		},
+		soundlist_scroll_up: function() {
+			if (!("soundlist" in this.$refs)) return;
+			this.soundlist_scroll_animation_start(-150, 200)
+		},
+		soundlist_scroll_down: function() {
+			if (!("soundlist" in this.$refs)) return;
+			this.soundlist_scroll_animation_start(150, 200);
+		},
+		soundlist_scroll_animation_start: function(dist, time) {
+			if (!("soundlist" in this.$refs)) return;
+
+			this.soundlist_scroll.animation.start = performance.now();
+			this.soundlist_scroll.animation.duration = time;
+			this.soundlist_scroll.animation.startScroll = this.$refs.soundlist.scrollTop;
+			this.soundlist_scroll.animation.scrollDist = dist;
+
+			this.soundlist_scroll_animation();
+		},
+		soundlist_scroll_animation: function() {
+			function f(x) {
+				if (x <= 0.5) {
+					return 2 * Math.pow(x, 2);
+				} else {
+					return -2 * Math.pow(x-1, 2) + 1;
+				}
+			}
+
+			const now = performance.now();
+			let t = (now - this.soundlist_scroll.animation.start) / this.soundlist_scroll.animation.duration;
+
+			if (t > 1) t = 1;
+
+			this.$refs.soundlist.scrollTop = this.soundlist_scroll.animation.startScroll + f(t) * this.soundlist_scroll.animation.scrollDist;
+
+			if (t < 1) requestAnimationFrame(this.soundlist_scroll_animation);
 		},
 	},
 	created: function() {
@@ -90,6 +153,7 @@ const app = new Vue({
 		this.ws.addEventListener("state-update", evt => {
 			// console.log(evt.detail);
 			this.edit_mode = evt.detail.edit_mode;
+			this.sp_connected = evt.detail.soundpad_connected;
 		});
 
 		this.ws.open("control");
@@ -98,4 +162,8 @@ const app = new Vue({
 
 window.addEventListener("DOMContentLoaded", () => {
 	app.$mount("main");
+});
+
+window.addEventListener("resize", () => {
+	app.resize();
 });

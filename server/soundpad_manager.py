@@ -36,7 +36,7 @@ class SoundpadManager(Thread):
 			self._remote.init()
 			self._lastSLupdate = None
 		except:
-			pass
+			pass # do nothing if we can't initialize, just try again
 
 	def is_initialized(self):
 		return self._remote.initialized()

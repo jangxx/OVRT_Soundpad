@@ -11,11 +11,33 @@
 	</head>
 	<body>
 		<main>
+			<div class="modal-background" v-if="!connected">
+				<div class="modal-dialog">
+					<h1>Bridge app is not running</h1>
+					<span>Please follow the instructions on <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
+				</div>
+			</div>
+
+			<div class="modal-background" v-if="connected && !sp_connected">
+				<div class="modal-dialog">
+					<h1>Soundpad is not running</h1>
+					<span>
+						This app only works in conjunction with <a href="https://leppsoft.com/soundpad/en/">Soundpad</a>. 
+						Please start it in order to use this app.
+						It may take up to five seconds for this message to disappear.
+					</span>
+				</div>
+			</div>
+
 			<div v-if="display_soundlist" class="overlay">
-				<div class="overlay-background" @click.self="display_soundlist = false"></div>
+				<div class="modal-background" @click.self="display_soundlist = false"></div>
 				<div class="overlay-box">
-					<div class="soundlist-item" @click="selectSound(null)">NONE</div>
-					<div class="soundlist-item" v-for="sound_id in soundlist_order" :key="sound_id" @click="selectSound(sound_id)">{{ full_soundlist[sound_id].title }}</div>
+					<div class="soundlist" ref="soundlist" @scroll="update_soundlist_scroll()">
+						<div class="soundlist-item" @click="selectSound(null)">NONE</div>
+						<div class="soundlist-item" v-for="sound_id in soundlist_order" :key="sound_id" @click="selectSound(sound_id)">{{ full_soundlist[sound_id].title }}</div>
+					</div>
+					<div @click="soundlist_scroll_up()" class="scroll-button" style="top: 20px" v-if="soundlist_scroll.scrollTop != 0">&#9650;&nbsp;&#9650;&nbsp;&#9650;</div>
+					<div @click="soundlist_scroll_down()" class="scroll-button" style="bottom: 20px" v-if="soundlist_scroll.scrollTop != soundlist_scroll.scrollHeight - soundlist_scroll.offsetHeight">&#9660;&nbsp;&#9660;&nbsp;&#9660;</div>
 				</div>
 			</div>
 

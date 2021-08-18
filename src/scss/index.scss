@@ -9,7 +9,9 @@ main {
 	align-items: center;
 	color: white;
 
-
+	.launch-button {
+		margin-top: 20px;
+	}
 }
 
 .soundpad-logo {
@@ -58,6 +60,13 @@ main {
 
 			.round-switch {
 				flex-shrink: 0;
+				margin-right: 10px;
+				// flex-basis: 60px;
+			}
+
+			.label {
+				font-size: 12px;
+				// flex-basis: 50%;
 			}
 		}
 		
