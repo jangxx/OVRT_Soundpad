@@ -1,5 +1,5 @@
 const Vue = require("vue/dist/vue.common");
-const { OVRT } = require("../lib/ovrt-helper");
+const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
 
 Vue.component("round-switch", {
@@ -11,6 +11,23 @@ Vue.component("round-switch", {
 	props: [ "value", "disabled" ],
 });
 
+const INITIAL_POSITION = {
+	attachedDevice: 3,
+	curvature: 0,
+	ecoMode: true,
+	framerate: 60,
+	lookHiding: false,
+	opacity: 1,
+	posX: -0.06,
+	posY: -0.12,
+	posZ: -0.34,
+	rotX: 106.599035,
+	rotY: -41.9955531,
+	rotZ: -69.0803113,
+	shouldSave: true,
+	size: 0.4,
+};
+
 const app = new Vue({
 	data: {
 		connected: false,
@@ -18,41 +35,34 @@ const app = new Vue({
 		sp_connected: false,
 		rows: 3,
 		columns: 4,
+		overlay_id: -1,
 	},
 	methods: {
 		openOverlay: function() {
-			if (this.control_overlay == null) {
-				this.ovrt_api.spawnOverlay({
-					posX: -1.5934797,
-					posY: 0.6742801,
-					posZ: 0.4708833,
-					rotX: 84.97573852,
-					rotY: 128.65335083,
-					rotZ: 106.8055648,
-					size: 0.4,
-					opacity: 1,
-					curvature: 0,
-					framerate: 60,
-					ecoMode: true,
-					lookHiding: true,
-					attachedDevice: 3,
-					shouldSave: true
-				}).then(overlay => {
-					this.control_overlay = overlay;
-					// console.log(overlay);
+			this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
+				this.overlay_id = overlay_id;
 
-					overlay.setContent(0, {
-						url: "control.html",
-						width: 800,
-						height: 600,
+				if (overlay_id == -1) {
+					this.ovrt_api.spawnOverlay(INITIAL_POSITION).then(overlay => {
+						this.overlay_id = overlay.id;
+						console.log(overlay);
+	
+						overlay.setContent(0, {
+							url: "control.html",
+							width: 1000,
+							height: 600,
+						});
+					}).catch(err => {
+						console.log(err);
 					});
-				});
-			}
-			/* else {
-				this.control_overlay.getTransform().then(transform => {
-					console.log(transform);
-				});
-			}*/
+				}
+			});
+		},
+		closeOverlay: function() {
+			this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
+				this.ovrt_api.closeOverlay(overlay_id);
+				this.overlay_id = -1;
+			});
 		},
 		modRows: function(dir) {
 			this.rows += dir;
@@ -79,8 +89,6 @@ const app = new Vue({
 		this.ws = new WebSocketConn();
 		this.ovrt_api = new OVRT({ function_queue: true });
 
-		this.control_overlay = null;
-
 		this.ws.addEventListener("open", () => {
 			this.connected = true;
 		});
@@ -105,6 +113,15 @@ const app = new Vue({
 		});
 
 		this.ws.open("index");
+
+		setInterval(() => {
+			this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
+				if (overlay_id == -1) return;
+
+				const o = new OVRTOverlay(overlay_id);
+				o.getTransform().then(transform => console.log(transform));
+			});
+		}, 2000);
 	},
 });
 

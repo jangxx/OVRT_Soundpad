@@ -1,5 +1,6 @@
 const Vue = require("vue/dist/vue.common");
 const { WebSocketConn } = require("../lib/websocket");
+const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 
 const app = new Vue({
 	data: {
@@ -128,6 +129,7 @@ const app = new Vue({
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
+		this.ovrt_api = new OVRT({ function_queue: true });
 
 		this.ws.addEventListener("open", () => {
 			this.connected = true;
@@ -157,6 +159,8 @@ const app = new Vue({
 		});
 
 		this.ws.open("control");
+
+		this.ovrt_api.setCurrentBrowserTitle("Soundpad Soundboard");
 	},
 });
 
