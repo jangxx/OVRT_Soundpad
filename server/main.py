@@ -2,9 +2,9 @@ import signal
 import asyncio
 import subprocess
 import ctypes
+import sys
 
 co_initialize = ctypes.windll.ole32.CoInitialize
-#   Force STA mode
 co_initialize(None)
 
 import clr 
@@ -18,13 +18,6 @@ from config import Config
 from ws_server import WebsocketServer
 from http_server import app
 from soundpad_manager import SoundpadManager
-
-# soundpad = SoundpadRemote()
-# soundpad.init()
-
-# print(soundpad.getSoundList())
-
-# soundpad.deinit()
 
 global_config = Config()
 
@@ -68,7 +61,10 @@ def generate_menu():
 
 traymenu = pystray.Menu(generate_menu)
 
-trayimage = Image.open("./assets/img/ovrt_sp_icon.png")
+if not getattr(sys, "frozen", False):
+	trayimage = Image.open("./assets/img/ovrt_sp_icon.png")
+else:
+	trayimage = Image.open("ovrt_sp_icon.png")
 
 trayicon = pystray.Icon("ovrt_sp", title="OVR Toolkit Soundpad Bridge", menu=traymenu)
 trayicon.icon = trayimage
