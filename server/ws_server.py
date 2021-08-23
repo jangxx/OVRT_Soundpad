@@ -1,5 +1,8 @@
 import asyncio, json
 
+from config import Config
+from soundpad_manager import SoundpadManager
+
 import websockets
 from sanic.log import logger
 
@@ -7,7 +10,7 @@ from sanic.log import logger
 # I don't like sanics WS implementation tho and this is just a quick and dirty project anyway, so there is no reason to get all that fancy
 
 class WebsocketServer:
-	def __init__(self, config, sp_manager):
+	def __init__(self, config: Config, sp_manager: SoundpadManager):
 		self._server = None
 		self._config = config
 		self._soundpad = sp_manager
@@ -42,10 +45,7 @@ class WebsocketServer:
 			elif params["as"] == "control":
 				self._control_sockets.add(socket)
 
-			await self.emitEvent("settings-change", {
-				"board": self._config.get("board"),
-				"sounds": self._config.get("sounds"),
-			}, socket=socket, index_sockets=False, control_sockets=False)
+			await self.emitEvent("settings-change", self._config.getExternalSerialized(), socket=socket, index_sockets=False, control_sockets=False)
 
 			await self.emitEvent("state-update", self._state, socket=socket, index_sockets=False, control_sockets=False)
 
@@ -55,10 +55,7 @@ class WebsocketServer:
 					return # invalid values are not allowed
 
 			self._config.set(params["setting"], params["value"])
-			await self.emitEvent("settings-change", {
-				"board": self._config.get("board"),
-				"sounds": self._config.get("sounds"),
-			})
+			await self.emitEvent("settings-change", self._config.getExternalSerialized())
 
 		elif command == "set-edit-mode":
 			self._state["edit_mode"] = params["value"]
@@ -70,10 +67,7 @@ class WebsocketServer:
 			sound_index = f"{params['row']},{params['col']}"
 
 			self._config.set([ "sounds", sound_index ], params["sound"])
-			await self.emitEvent("settings-change", {
-				"board": self._config.get("board"),
-				"sounds": self._config.get("sounds"),
-			}, index_sockets=False)
+			await self.emitEvent("settings-change", self._config.getExternalSerialized(), index_sockets=False)
 
 		elif command == "play-sound":
 			sound_id = params["sound"]
@@ -99,7 +93,7 @@ class WebsocketServer:
 			async for raw_msg in socket:
 				try:
 					msg = json.loads(raw_msg)
-				except err:
+				except Exception as err:
 					logger.error(f"Could not parse JSON: {repr(err)}")
 					continue
 

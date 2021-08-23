@@ -14,7 +14,7 @@
 			<div class="modal-background" v-if="!connected">
 				<div class="modal-dialog">
 					<h1>Bridge app is not running</h1>
-					<span>Please follow the instructions on <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
+					<span>Please follow the instructions at <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
 				</div>
 			</div>
 
@@ -29,7 +29,8 @@
 				</div>
 			</div>
 
-			<div class="launch-button button" @click="openOverlay()">Open Soundboard</div>
+			<div class="launch-button button" @click="openOverlay()" v-if="overlay_id == -1">Open Soundboard</div>
+			<div class="launch-button button red" @click="closeOverlay()" v-if="overlay_id != -1">Close Soundboard</div>
 
 			<h1>Settings</h1>
 

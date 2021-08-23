@@ -9,7 +9,6 @@ const app = new Vue({
 		edit_mode: false,
 		rows: 3,
 		columns: 4,
-		contents: {},
 		display_soundlist: false,
 		full_soundlist: {},
 		soundlist_order: [],
@@ -52,7 +51,7 @@ const app = new Vue({
 		refreshSoundlist: function() {
 			return fetch("http://localhost:64152/api/soundlist").then(resp => resp.json()).then(data => {
 				this.full_soundlist = data.soundlist;
-				this.soundlist_order = Object.keys(data.soundlist).slice(0, 2);
+				this.soundlist_order = Object.keys(data.soundlist);
 		
 				this.soundlist_order.sort((a, b) => Number(data.soundlist[a].index) - Number(data.soundlist[b].index));
 			});
@@ -130,6 +129,7 @@ const app = new Vue({
 	created: function() {
 		this.ws = new WebSocketConn();
 		this.ovrt_api = new OVRT({ function_queue: true });
+		this.ovrt_overlay = null;
 
 		this.ws.addEventListener("open", () => {
 			this.connected = true;
@@ -144,10 +144,18 @@ const app = new Vue({
 		});
 
 		this.ws.addEventListener("settings-change", evt => {
+			if ((this.rows != evt.detail.board.rows || this.columns != evt.detail.board.columns) && this.ovrt_overlay !== null) {
+				this.ovrt_overlay.setContent(0, {
+					url: "control.html",
+					width: evt.detail.board.columns * 250,
+					height: evt.detail.board.rows * 200,
+				});
+			}
+
 			this.rows = evt.detail.board.rows;
 			this.columns = evt.detail.board.columns;
 
-			console.log("sounds", JSON.stringify(evt.detail.sounds));
+			// console.log("sounds", JSON.stringify(evt.detail.sounds));
 			this.sounds = evt.detail.sounds;
 			this.refreshSoundlist();
 		});
@@ -161,6 +169,26 @@ const app = new Vue({
 		this.ws.open("control");
 
 		this.ovrt_api.setCurrentBrowserTitle("Soundpad Soundboard");
+
+		this.ovrt_api.getUniqueID().then(uid => {
+			this.ovrt_overlay = new OVRTOverlay(uid);
+		});
+
+		this.current_transform = "";
+
+		setInterval(() => {
+			if (this.ovrt_overlay === null) return;
+
+			this.ovrt_overlay.getTransform().then(transform => {
+				const transform_json = JSON.stringify(transform);
+
+				// only update settings if the transform actually changed
+				if (transform_json != this.current_transform) {
+					this.current_transform = transform_json;
+					this.ws.sendCommand("change-settings", { setting: ["overlay" ], value: transform })
+				}
+			});
+		}, 2000);
 	},
 });
 

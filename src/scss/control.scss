@@ -6,7 +6,7 @@ main {
 	align-items: stretch;
 	justify-content: space-around;
 	height: 100%;
-
+	
 	.button-row {
 		flex-grow: 1;
 		display: flex;
@@ -15,7 +15,7 @@ main {
 		min-height: 0;
 		flex-basis: 0;
 
-		.button {
+		.soundboard-button {
 			z-index: 100;
 			height: calc(100% - 20px);
 			flex-grow: 1;
@@ -26,8 +26,23 @@ main {
 			min-width: 0;
 			position: relative;
 			box-sizing: border-box;
-		
-			.button-content {
+			user-select: none;
+			cursor: pointer;
+
+			&:active {
+				transform: scale(0.9);
+			}
+
+			&.disabled {
+				opacity: 0.3;
+				cursor: auto;
+
+				&:active {
+					transform: none;
+				}
+			}
+
+			.soundboard-button-content {
 				width: 100%;
 				height: 100%;
 				display: flex;
@@ -37,7 +52,7 @@ main {
 				min-width: 0;
 				padding: 10px;
 				box-sizing: border-box;
-			
+
 				.title {
 					word-wrap: break-word;
 					font-size: 20px;
@@ -61,15 +76,15 @@ main {
 	justify-content: center;
 	overflow: hidden;
 	min-width: 0;
-}
 
-.edit-mode-overlay > div {
-	white-space: nowrap;
-	overflow: hidden;
-	background: rgba(0,0,0,0.5);
-	padding: 20px;
-	border-radius: 20px;
-	line-height: 60px;
+	div {
+		white-space: nowrap;
+		overflow: hidden;
+		background: rgba(0,0,0,0.5);
+		padding: 20px;
+		border-radius: 20px;
+		line-height: 60px;
+	}
 }
 
 .overlay {
@@ -109,6 +124,7 @@ main {
 				margin-bottom: 20px;
 				font-size: 20px;
 				cursor: pointer;
+				user-select: none;
 			}
 			
 			.soundlist-item:hover {
@@ -128,6 +144,8 @@ main {
 			background-color: white;
 			text-align: center;
 			line-height: 30px;
+			user-select: none;
+			cursor: pointer;
 		}
 	}
 }

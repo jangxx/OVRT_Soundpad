@@ -95,6 +95,8 @@ window.globalCallbackCounter = 0;
 window.globalCallbacks = {};
 
 window.callGlobalCallback = function(...args) {
+	// console.log(args);
+
 	const id = args.pop();
 
 	if (!(id in window.globalCallbacks)) return;
@@ -288,6 +290,8 @@ class OVRT {
 	}
 
 	_callAPIFunction(name, args) {
+		// console.log("call", name, args);
+
 		if (!window.GLOBAL_API_READY && this._enable_function_queue) {
 			this._function_queue.push({ name, args });
 			return null;
@@ -433,6 +437,17 @@ class OVRT {
 			});
 
 			this._callAPIFunction("GetUniqueID", ["callGlobalCallback", id ]);
+		});
+	}
+	
+	getWristwatchTransform() {
+		return new Promise((resolve) => {
+			const id = window.registerGlobalCallback(this, result => {
+				console.log(result);
+				return resolve(result[0]);
+			});
+
+			this._callAPIFunction("GetWristwatchTransform", ["callGlobalCallback", id ]);
 		});
 	}
 }

@@ -72,7 +72,9 @@ gulp.task('scripts', function() {
             .pipe(gulp.dest('./build/js'))
             .on("end", resolve)
             .on("error", reject);
-	})));
+	}))).catch(err => {
+        console.error("Error while building JS:", err);
+    });
 });
 
 gulp.task('styles', function() {

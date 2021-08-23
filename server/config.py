@@ -18,12 +18,21 @@ class Config:
 			"server": {
 				"http_port": 64152,
 				"ws_port": 64153
-			}
+			},
+			"overlay": None
 		}
 
 		if os.path.exists(self._config_path):
 			with open(self._config_path, "r") as configfile:
 				self._config = json.load(configfile)
+
+	def getExternalSerialized(self):
+		"""Return a dict of all settings that are relevant for the frontend"""
+		return {
+			"board": self.get("board"),
+			"sounds": self.get("sounds"),
+			"overlay": self.get("overlay"),
+		}
 
 	def get(self, path):
 		ret = self._config

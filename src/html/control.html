@@ -14,7 +14,7 @@
 			<div class="modal-background" v-if="!connected">
 				<div class="modal-dialog">
 					<h1>Bridge app is not running</h1>
-					<span>Please follow the instructions on <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
+					<span>Please follow the instructions at <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
 				</div>
 			</div>
 
@@ -42,9 +42,9 @@
 			</div>
 
 			<div v-for="row in rows" class="button-row">
-				<div v-for="col in columns" class="button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
+				<div v-for="col in columns" class="soundboard-button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
 					<div v-if="edit_mode" class="edit-mode-overlay"><div>&#x270E;</div></div>
-					<div class="button-content" :class="{ 'overlay-visible': edit_mode }">
+					<div class="soundboard-button-content" :class="{ 'overlay-visible': edit_mode }">
 						<!-- {{ (row-1) * columns + (col-1) }} -->
 						<div class="title">{{ full_board[col-1][row-1] !== null ? full_board[col-1][row-1].title : "" }}</div>
 					</div>
