@@ -29,15 +29,19 @@ main {
 			user-select: none;
 			cursor: pointer;
 
+			&:hover {
+				transform: scale(1.05);
+			}
+
 			&:active {
-				transform: scale(0.9);
+				transform: scale(0.95);
 			}
 
 			&.disabled {
 				opacity: 0.3;
 				cursor: auto;
 
-				&:active {
+				&:active, &:hover {
 					transform: none;
 				}
 			}

@@ -1,4 +1,15 @@
-import signal, asyncio, sys, threading
+import signal
+import asyncio
+import subprocess
+import ctypes
+
+co_initialize = ctypes.windll.ole32.CoInitialize
+#   Force STA mode
+co_initialize(None)
+
+import clr 
+clr.AddReference('System.Windows.Forms')
+from System.Windows.Forms import OpenFileDialog
 
 import pystray
 from PIL import Image
@@ -34,9 +45,28 @@ def exit():
 	sp_manager.stop()
 	trayicon.stop()
 
-traymenu = pystray.Menu(
-	pystray.MenuItem("Exit", action=exit)
-)
+def set_soundpad_path():
+	file_dialog = OpenFileDialog()
+	file_dialog.Filter = "Soundpad.exe|*.exe"
+	file_dialog.InitialDirectory = "C:\Program Files"
+	ret = file_dialog.ShowDialog()
+
+	if ret != 1:
+		return
+
+	soundpad_path = file_dialog.FileName
+	global_config.set(["soundpad", "autostart_path"], soundpad_path)
+
+def clear_soundpad_path():
+	global_config.set(["soundpad", "autostart_path"], None)
+
+def generate_menu():
+	yield pystray.MenuItem("Set Soundpad Path", action=set_soundpad_path)
+	if global_config.get(["soundpad", "autostart_path"]) is not None:
+		yield pystray.MenuItem("Clear Soundpad Path", action=clear_soundpad_path)
+	yield pystray.MenuItem("Exit", action=exit)
+
+traymenu = pystray.Menu(generate_menu)
 
 trayimage = Image.open("./assets/img/ovrt_sp_icon.png")
 
@@ -74,4 +104,9 @@ def main(icon):
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+	# is soundpad is not running try launching it
+	if global_config.get(["soundpad", "autostart_path"]) is not None and not sp_manager.is_initialized():
+		subprocess.Popen([ global_config.get(["soundpad", "autostart_path"]) ], start_new_session=True)
+
 	trayicon.run(setup=main)

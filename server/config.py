@@ -12,14 +12,17 @@ class Config:
 		self._config = {
 			"board": {
 				"rows": 3,
-				"cols": 4
+				"columns": 4
 			},
 			"sounds": {},
 			"server": {
 				"http_port": 64152,
 				"ws_port": 64153
 			},
-			"overlay": None
+			"overlay": None,
+			"soundpad": {
+				"autostart_path": None
+			}
 		}
 
 		if os.path.exists(self._config_path):
