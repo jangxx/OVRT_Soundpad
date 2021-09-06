@@ -1,4 +1,5 @@
 const Vue = require("vue/dist/vue.common");
+const nd = require("nd4js");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
 
@@ -18,12 +19,6 @@ const INITIAL_POSITION = {
 	framerate: 60,
 	lookHiding: false,
 	opacity: 1,
-	"posX": -0.10419747233390808,
-    "posY": -0.12624290585517884,
-    "posZ": -0.3303057849407196,
-    "rotX": 0.6284292936325073,
-    "rotY": 112.30915832519531,
-    "rotZ": 224.4752655029297,
 	shouldSave: true,
 	size: 0.4,
 };
@@ -39,41 +34,74 @@ const app = new Vue({
 		last_overlay_position: null,
 	},
 	methods: {
-		openOverlay: function() {
-			this.ovrt_api.getWristwatchTransform().then(transform => console.log("transform:", transform));
+		openOverlay: async function() {
+			const overlay_id = await this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard");
 
-			this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
-				this.overlay_id = overlay_id;
+			this.overlay_id = overlay_id;
 
-				if (overlay_id == -1) {
-					let overlay_pos = this.last_overlay_position;
+			if (overlay_id == -1) {
+				let overlay_pos = this.last_overlay_position;
 
-					if (overlay_pos == null) {
-						overlay_pos = INITIAL_POSITION;
-					}
+				if (overlay_pos == null) {
+					overlay_pos = await this.ovrt_api.getWristwatchTransform();
+					overlay_pos = Object.assign({}, overlay_pos, INITIAL_POSITION);
+					// overlay_pos.posY += 0.3; // spawn 30cm above the wrist watch
 
-					this.ovrt_api.spawnOverlay(overlay_pos).then(overlay => {
-						this.overlay_id = overlay.id;
-						// console.log(overlay);
-	
-						overlay.setBrowserOptionsEnabled(false);
+					const Rz = nd.array([
+						[ Math.cos(overlay_pos.rotZ), -Math.sin(overlay_pos.rotZ), 0, 0 ],
+						[ Math.sin(overlay_pos.rotZ), Math.cos(overlay_pos.rotZ), 0, 0 ],
+						[ 0, 0, 1, 0 ],
+						[ 0, 0, 0, 1 ],
+					]);
+					const Rx = nd.array([
+						[ 1, 0, 0, 0 ],
+						[ 0, Math.cos(overlay_pos.rotX), -Math.sin(overlay_pos.rotX), 0 ],
+						[ 0, Math.sin(overlay_pos.rotX), Math.cos(overlay_pos.rotX), 0 ],
+						[ 0, 0, 0, 1 ],
+					]);
+					const Ry = nd.array([
+						[ Math.cos(overlay_pos.rotY), 0, Math.sin(overlay_pos.rotY), 0 ],
+						[ 0, 1, 0, 0 ],
+						[ -Math.sin(overlay_pos.rotY), 0, Math.cos(overlay_pos.rotY), 0 ],
+						[ 0, 0, 0, 1 ],
+					]);
+					const translate = nd.array([
+						[ 1, 0, 0, 0 ],
+						[ 0, 1, 0, 0.3 ],
+						[ 0, 0, 1, 0],
+						[ 0, 0, 0, 1],
+					]);
 
-						overlay.setContent(0, {
-							url: "control.html",
-							width: this.columns * 250,
-							height: this.rows * 200,
-						});
-					}).catch(err => {
-						console.log(err);
-					});
+					const transform = nd.la.matmul(translate, Ry, Rx, Rz);
+
+					console.log(transform(0, 3), transform(1, 3), transform(2, 3));
 				}
-			});
+
+				console.log(overlay_pos);
+
+				// return;
+
+				const overlay = await this.ovrt_api.spawnOverlay(overlay_pos);
+				this.overlay_id = overlay.id;
+				// console.log(overlay);
+
+				overlay.setBrowserOptionsEnabled(false);
+
+				overlay.setContent(0, {
+					url: "control.html",
+					width: this.columns * 250,
+					height: this.rows * 200,
+				});
+			}
 		},
-		closeOverlay: function() {
-			this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
+		closeOverlay: async function() {
+			const overlay_id = await this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard");
+
+			if (overlay_id != -1) {
 				this.ovrt_api.closeOverlay(overlay_id);
-				this.overlay_id = -1;
-			});
+			}
+
+			this.overlay_id = -1;
 		},
 		modRows: function(dir) {
 			this.rows += dir;
@@ -92,7 +120,6 @@ const app = new Vue({
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
 		},
 		toggleEditMode: function() {
-			console.log("toggled")
 			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });
 		}
 	},

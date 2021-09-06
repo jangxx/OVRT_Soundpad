@@ -27,7 +27,8 @@ class Config:
 
 		if os.path.exists(self._config_path):
 			with open(self._config_path, "r") as configfile:
-				self._config = json.load(configfile)
+				file_config = json.load(configfile)
+				self._config = { **self._config, **file_config }
 
 	def getExternalSerialized(self):
 		"""Return a dict of all settings that are relevant for the frontend"""
@@ -50,6 +51,9 @@ class Config:
 
 	def set(self, path, value):
 		elem = self._config
+
+		if path[0] == "overlay":
+			return
 
 		for e in path[:-1]:
 			elem = elem[e]

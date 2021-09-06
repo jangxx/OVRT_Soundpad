@@ -22,8 +22,7 @@ window.APIInit = function() {
 	const event = new Event("api-ready");
 	setTimeout(() => { // can't execute the event code in the same context apparently
 		this.dispatchEvent(event);
-	}, 0);
-	
+	}, 0);	
 };
 
 window.DevicePositionUpdate = function(deviceId, deviceInfo) {
@@ -443,8 +442,7 @@ class OVRT {
 	getWristwatchTransform() {
 		return new Promise((resolve) => {
 			const id = window.registerGlobalCallback(this, result => {
-				console.log(result);
-				return resolve(result[0]);
+				return resolve(JSON.parse(result[0]));
 			});
 
 			this._callAPIFunction("GetWristwatchTransform", ["callGlobalCallback", id ]);
