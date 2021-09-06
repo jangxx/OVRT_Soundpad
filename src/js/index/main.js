@@ -1,5 +1,4 @@
 const Vue = require("vue/dist/vue.common");
-const nd = require("nd4js");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
 
@@ -42,48 +41,19 @@ const app = new Vue({
 			if (overlay_id == -1) {
 				let overlay_pos = this.last_overlay_position;
 
+				let initial_placement = false;
 				if (overlay_pos == null) {
 					overlay_pos = await this.ovrt_api.getWristwatchTransform();
 					overlay_pos = Object.assign({}, overlay_pos, INITIAL_POSITION);
-					// overlay_pos.posY += 0.3; // spawn 30cm above the wrist watch
-
-					const Rz = nd.array([
-						[ Math.cos(overlay_pos.rotZ), -Math.sin(overlay_pos.rotZ), 0, 0 ],
-						[ Math.sin(overlay_pos.rotZ), Math.cos(overlay_pos.rotZ), 0, 0 ],
-						[ 0, 0, 1, 0 ],
-						[ 0, 0, 0, 1 ],
-					]);
-					const Rx = nd.array([
-						[ 1, 0, 0, 0 ],
-						[ 0, Math.cos(overlay_pos.rotX), -Math.sin(overlay_pos.rotX), 0 ],
-						[ 0, Math.sin(overlay_pos.rotX), Math.cos(overlay_pos.rotX), 0 ],
-						[ 0, 0, 0, 1 ],
-					]);
-					const Ry = nd.array([
-						[ Math.cos(overlay_pos.rotY), 0, Math.sin(overlay_pos.rotY), 0 ],
-						[ 0, 1, 0, 0 ],
-						[ -Math.sin(overlay_pos.rotY), 0, Math.cos(overlay_pos.rotY), 0 ],
-						[ 0, 0, 0, 1 ],
-					]);
-					const translate = nd.array([
-						[ 1, 0, 0, 0 ],
-						[ 0, 1, 0, 0.3 ],
-						[ 0, 0, 1, 0],
-						[ 0, 0, 0, 1],
-					]);
-
-					const transform = nd.la.matmul(translate, Ry, Rx, Rz);
-
-					console.log(transform(0, 3), transform(1, 3), transform(2, 3));
+					initial_placement = true;
 				}
-
-				console.log(overlay_pos);
-
-				// return;
 
 				const overlay = await this.ovrt_api.spawnOverlay(overlay_pos);
 				this.overlay_id = overlay.id;
-				// console.log(overlay);
+				
+				if (initial_placement) {
+					overlay.translateUp(0.25); // move up 25cm
+				}
 
 				overlay.setBrowserOptionsEnabled(false);
 

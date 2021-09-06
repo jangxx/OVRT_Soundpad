@@ -51,10 +51,7 @@ class Config:
 
 	def set(self, path, value):
 		elem = self._config
-
-		if path[0] == "overlay":
-			return
-
+		
 		for e in path[:-1]:
 			elem = elem[e]
 
