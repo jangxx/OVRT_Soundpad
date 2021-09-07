@@ -3,7 +3,6 @@ import asyncio
 import subprocess
 import sys
 import tkinter as tk
-from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
 
 import pystray
@@ -28,7 +27,7 @@ trayicon = None
 app.ctx.sp_manager = sp_manager
 sp_manager.start()
 
-def exit():
+def exit_program():
 	async_stop_signal.set_result(True)
 	sp_manager.stop()
 	trayicon.stop()
@@ -51,7 +50,7 @@ def generate_menu():
 	yield pystray.MenuItem("Set Soundpad Path", action=set_soundpad_path)
 	if global_config.get(["soundpad", "autostart_path"]) is not None:
 		yield pystray.MenuItem("Clear Soundpad Path", action=clear_soundpad_path)
-	yield pystray.MenuItem("Exit", action=exit)
+	yield pystray.MenuItem("Exit", action=exit_program)
 
 traymenu = pystray.Menu(generate_menu)
 
