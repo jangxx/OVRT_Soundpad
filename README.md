@@ -25,6 +25,31 @@ If you want to disable the auto-launch feature again, simply click on "Clear Sou
 
 ![clear soundpad path](assets/github/clear_soundpad_path.png)
 
+## Usage
+
+### Phone UI
+
+![phone ui](assets/github/phone_interface.png)
+
+The interface should be self-explanatory.
+- Click the big "Open Soundboard" button to open the soundboard overlay
+- Use the `+` and `-` buttons to change the dimensions of the soundboard. Items that are cut off will still be saved.
+- Turn on the Edit Mode in order to change the effects of the buttons on the soundboard.
+
+### Soundboard UI
+
+The soundboard UI is also very simple:
+
+![soundboard ui](assets/github/soundboard_interface.png)
+
+Clicking on a button will play the sound effect. The names are identical to the ones used within Soundpad itself.
+
+If the Edit Mode is turned on, each of the buttons with get a little edit icon and clicking it will open a list of sound effects from Soundpad to choose from.
+
+![soundboard edit mode](assets/github/soundboard_edit_mode.png)
+
+![soundboard sound list](assets/github/soundboard_sound_list.png)
+
 ## Development
 
 This section covers topics related to running and building the app as well as the bridge locally.
