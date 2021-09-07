@@ -4,8 +4,8 @@ from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
-	"packages": [ "pystray", "clr" ],
-	"excludes": [ "tkinter" ],
+	"packages": [ "pystray" ],
+	"excludes": [ ],
 	"include_files": [
 		("./assets/img/ovrt_sp_icon.png", "ovrt_sp_icon.png"),
 	],

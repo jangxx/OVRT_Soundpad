@@ -1,15 +1,10 @@
 import signal
 import asyncio
 import subprocess
-import ctypes
 import sys
-
-co_initialize = ctypes.windll.ole32.CoInitialize
-co_initialize(None)
-
-import clr 
-clr.AddReference('System.Windows.Forms')
-from System.Windows.Forms import OpenFileDialog
+import tkinter as tk
+from tkinter import filedialog
+from tkinter.filedialog import askopenfilename
 
 import pystray
 from PIL import Image
@@ -39,16 +34,15 @@ def exit():
 	trayicon.stop()
 
 def set_soundpad_path():
-	file_dialog = OpenFileDialog()
-	file_dialog.Filter = "Soundpad.exe|*.exe"
-	file_dialog.InitialDirectory = "C:\Program Files"
-	ret = file_dialog.ShowDialog()
+	root = tk.Tk()
+	root.withdraw()
+	filename = askopenfilename(filetypes=[("Soundpad.exe", "*.exe")])
+	root.destroy()
 
-	if ret != 1:
+	if len(filename) == 0:
 		return
 
-	soundpad_path = file_dialog.FileName
-	global_config.set(["soundpad", "autostart_path"], soundpad_path)
+	global_config.set(["soundpad", "autostart_path"], filename)
 
 def clear_soundpad_path():
 	global_config.set(["soundpad", "autostart_path"], None)
