@@ -47,9 +47,9 @@ def clear_soundpad_path():
 	global_config.set(["soundpad", "autostart_path"], None)
 
 def generate_menu():
-	yield pystray.MenuItem("Set Soundpad Path", action=set_soundpad_path)
+	yield pystray.MenuItem("Set Soundpad path", action=set_soundpad_path)
 	if global_config.get(["soundpad", "autostart_path"]) is not None:
-		yield pystray.MenuItem("Clear Soundpad Path", action=clear_soundpad_path)
+		yield pystray.MenuItem("Clear Soundpad path", action=clear_soundpad_path)
 	yield pystray.MenuItem("Exit", action=exit_program)
 
 traymenu = pystray.Menu(generate_menu)
