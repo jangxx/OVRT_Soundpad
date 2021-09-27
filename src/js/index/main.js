@@ -73,7 +73,7 @@ const app = new Vue({
 				overlay.setContent(0, {
 					url: "control.html",
 					width: this.columns * 250,
-					height: this.rows * 200,
+					height: this.rows * 200 + 50,
 				});
 			}
 		},

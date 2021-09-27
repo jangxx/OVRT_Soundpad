@@ -36,26 +36,34 @@
 				</div>
 			</div>
 
-			<div v-if="display_soundlist" class="overlay">
+			<div v-if="display_soundlist" class="overlay select-sound-overlay">
 				<div class="modal-background" @click.self="display_soundlist = false"></div>
 				<div class="overlay-box">
+					<input v-model="sound_search_input" class="sound-search-input" placeholder="Search for sounds...">
 					<div class="soundlist" ref="soundlist" @scroll="update_soundlist_scroll()">
 						<div class="soundlist-item" @click="selectSound(null)">NONE</div>
 						<div class="soundlist-item" v-for="sound_id in soundlist_order" :key="sound_id" @click="selectSound(sound_id)">{{ full_soundlist[sound_id].title }}</div>
 					</div>
-					<div @click="soundlist_scroll_up()" class="scroll-button" style="top: 20px" v-if="soundlist_scroll.scrollTop != 0">&#9650;&nbsp;&#9650;&nbsp;&#9650;</div>
+					<div @click="soundlist_scroll_up()" class="scroll-button" style="top: 70px" v-if="soundlist_scroll.scrollTop != 0">&#9650;&nbsp;&#9650;&nbsp;&#9650;</div>
 					<div @click="soundlist_scroll_down()" class="scroll-button" style="bottom: 20px" v-if="soundlist_scroll.scrollTop != soundlist_scroll.scrollHeight - soundlist_scroll.offsetHeight">&#9660;&nbsp;&#9660;&nbsp;&#9660;</div>
 				</div>
 			</div>
 
-			<div v-for="row in rows" class="button-row">
-				<div v-for="col in columns" class="soundboard-button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
-					<div v-if="edit_mode" class="edit-mode-overlay"><div>&#x270E;</div></div>
-					<div class="soundboard-button-content" :class="{ 'overlay-visible': edit_mode }">
-						<!-- {{ (row-1) * columns + (col-1) }} -->
-						<div class="title">{{ full_board[col-1][row-1] !== null ? full_board[col-1][row-1].title : "" }}</div>
+			<div id="soundboard">
+				<div v-for="row in rows" class="button-row">
+					<div v-for="col in columns" class="soundboard-button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
+						<div v-if="edit_mode" class="edit-mode-overlay"><div>&#x270E;</div></div>
+						<div class="soundboard-button-content" :class="{ 'overlay-visible': edit_mode }">
+							<!-- {{ (row-1) * columns + (col-1) }} -->
+							<div class="title">{{ full_board[col-1][row-1] !== null ? full_board[col-1][row-1].title : "" }}</div>
+						</div>
 					</div>
 				</div>
+			</div>
+
+			<div id="controls">
+				<div class="button small red" @click="stopSound()">Stop</div>
+				<div class="button small blue" @click="pauseSound()">Play/Pause</div>
 			</div>
 		</main>
 	</body>

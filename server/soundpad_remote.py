@@ -46,10 +46,10 @@ class SoundpadRemote:
 		return self._handle is not None
 
 	def _sendRequest(self, request):
-		self._request_lock.acquire()
-
 		if self._handle is None:
 			raise Exception("Remote is not initialized")
+
+		self._request_lock.acquire()
 
 		try:
 			win32file.WriteFile(self._handle, str.encode(request))
@@ -73,6 +73,22 @@ class SoundpadRemote:
 
 	def playSound(self, index, playSpeakers=True, playMic=True):
 		resp = self._sendRequest(f"DoPlaySound({index}, {playSpeakers}, {playMic})")
+
+		if not resp.startswith(b"R-200"):
+			raise Exception(str(resp, "utf8"))
+
+		return True
+
+	def stopSound(self):
+		resp = self._sendRequest("DoStopSound()")
+
+		if not resp.startswith(b"R-200"):
+			raise Exception(str(resp, "utf8"))
+
+		return True
+
+	def togglePause(self):
+		resp = self._sendRequest("DoTogglePause()")
 
 		if not resp.startswith(b"R-200"):
 			raise Exception(str(resp, "utf8"))

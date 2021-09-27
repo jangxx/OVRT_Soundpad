@@ -73,7 +73,7 @@ class WebSocketConn extends EventTarget {
 		});
 	}
 
-	sendCommand(command, params) {
+	sendCommand(command, params = {}) {
 		const msg = JSON.stringify({ type: "command", command, params });
 		// console.log("sent", msg);
 

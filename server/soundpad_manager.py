@@ -84,3 +84,9 @@ class SoundpadManager(Thread):
 			return self._soundlist
 		finally:
 			self._sl_lock.release()
+
+	def stopSound(self):
+		self._remote.stopSound()
+
+	def pauseSound(self):
+		self._remote.togglePause()

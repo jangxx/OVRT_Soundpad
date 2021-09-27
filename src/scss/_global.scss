@@ -5,6 +5,8 @@ $green_dark: #1E5929;
 $green_light: #30A645;
 $red_dark: #590816;
 $red_light: #A63045;
+$blue_light: #237AF5;
+$blue_dark: #103A75;
 
 html, body {
 	margin: 0px;
@@ -54,6 +56,14 @@ html, body {
 
 		&:focus, &:hover {
 			background: $red_light;
+		}
+	}
+
+	&.blue {
+		background-color: $blue_dark;
+
+		&:focus, &:hover {
+			background: $blue_light;
 		}
 	}
 

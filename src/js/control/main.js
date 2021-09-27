@@ -1,5 +1,6 @@
 const BRIDGE_VERSION = require("../../../bridge_version.json");
 const Vue = require("vue/dist/vue.common");
+const { matchSorter } = require("match-sorter");
 const { WebSocketConn } = require("../lib/websocket");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 
@@ -15,9 +16,9 @@ const app = new Vue({
 		columns: 4,
 		display_soundlist: false,
 		full_soundlist: {},
-		soundlist_order: [],
 		sounds: {},
 		selected_tile: { row: null, col: null },
+		sound_search_input: "",
 		soundlist_scroll: {
 			scrollTop: 0,
 			scrollHeight: 0,
@@ -50,6 +51,13 @@ const app = new Vue({
 
 			return columns;
 		},
+		soundlist_order: function() {
+			const soundlist = matchSorter(Object.keys(this.full_soundlist), this.sound_search_input, { keys: [item => this.full_soundlist[item].title] })
+			Vue.nextTick(() => {
+				this.update_soundlist_scroll();
+			});
+			return soundlist;
+		},
 		modal_visible: function() {
 			if (this.bridge_update_required) return 1;
 
@@ -59,13 +67,11 @@ const app = new Vue({
 		}
 	},
 	methods: {
-		refreshSoundlist: function() {
-			return fetch("http://localhost:64152/api/soundlist").then(resp => resp.json()).then(data => {
-				this.full_soundlist = data.soundlist;
-				this.soundlist_order = Object.keys(data.soundlist);
-		
-				this.soundlist_order.sort((a, b) => Number(data.soundlist[a].index) - Number(data.soundlist[b].index));
-			});
+		refreshSoundlist: async function() {
+			const resp = await fetch("http://localhost:64152/api/soundlist");
+			const data = await resp.json();
+
+			this.full_soundlist = data.soundlist;
 		},
 		sendClick: function(col, row) {
 			if (this.edit_mode) {
@@ -73,6 +79,7 @@ const app = new Vue({
 					this.display_soundlist = true;
 					this.selected_tile.row = row;
 					this.selected_tile.col = col;
+					this.sound_search_input = "";
 
 					Vue.nextTick(() => {
 						this.update_soundlist_scroll();
@@ -89,6 +96,12 @@ const app = new Vue({
 		selectSound: function(sound_id) {
 			this.ws.sendCommand("select-sound", { row: this.selected_tile.row, col: this.selected_tile.col, sound: sound_id });
 			this.display_soundlist = false;
+		},
+		stopSound: function() {
+			this.ws.sendCommand("stop-sound");
+		},
+		pauseSound: function() {
+			this.ws.sendCommand("pause-sound");
 		},
 		resize: function() {
 			if (this.$refs.soundlist !== undefined) {
@@ -178,7 +191,7 @@ const app = new Vue({
 				this.ovrt_overlay.setContent(0, {
 					url: "control.html",
 					width: evt.detail.board.columns * 250,
-					height: evt.detail.board.rows * 200,
+					height: evt.detail.board.rows * 200 + 50,
 				});
 			}
 
@@ -196,6 +209,10 @@ const app = new Vue({
 			this.sp_connected = evt.detail.soundpad_connected;
 
 			this.checkVersion(evt.detail.version);
+
+			if (!this.edit_mode) {
+				this.display_soundlist = false;
+			}
 		});
 
 		this.ws.open("control");
