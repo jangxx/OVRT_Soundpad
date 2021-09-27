@@ -32,8 +32,7 @@ const paths = {
 const listen_port = (process.env.GULP_PORT !== undefined) ? process.env.PORT : 8080;
 const listen_addr = (process.env.GULP_ADDR !== undefined) ? process.env.ADDR : "localhost";
 
-const use_sourcemaps = !util.env.production;
-const use_uglify = util.env.production;
+const is_production = util.env.production;
 
 gulp.task('clean', function() {
     return del([ 'build' ]);
@@ -66,9 +65,9 @@ gulp.task('scripts', function() {
             .bundle()
             .pipe(source(path.basename(filepath) + '.js'))
             .pipe(buffer())
-            .pipe(gulpif(use_sourcemaps, sourcemaps.init({loadMaps: true})))
-            .pipe(gulpif(use_uglify, uglify().on('error', console.log)))
-            .pipe(gulpif(use_sourcemaps, sourcemaps.write()))
+            .pipe(gulpif(!is_production, sourcemaps.init({loadMaps: true})))
+            .pipe(gulpif(is_production, uglify().on('error', console.log)))
+            .pipe(gulpif(!is_production, sourcemaps.write()))
             .pipe(gulp.dest('./build/js'))
             .on("end", resolve)
             .on("error", reject);
@@ -79,10 +78,10 @@ gulp.task('scripts', function() {
 
 gulp.task('styles', function() {
     return gulp.src(paths.styles)
-        .pipe(gulpif(use_sourcemaps, sourcemaps.init()))
+        .pipe(gulpif(!is_production, sourcemaps.init()))
             .pipe(sass().on('error', sass.logError))
-        .pipe(gulpif(use_sourcemaps, sourcemaps.write()))
-        .pipe(gulpif(use_uglify, cleanCSS()))
+        .pipe(gulpif(!is_production, sourcemaps.write()))
+        .pipe(gulpif(is_production, cleanCSS()))
         .pipe(gulp.dest('./build/css'));
 });
 
@@ -104,15 +103,47 @@ gulp.task('watch', function() {
 gulp.task("deploy", async function() {
     await del(path.join(paths.deploy_output));
     await fs.mkdirp(paths.deploy_output);
-    await fs.mkdir(path.join(paths.deploy_output, "html"));
-    await fs.mkdir(path.join(paths.deploy_output, "html/build"));
-    await fs.mkdir(path.join(paths.deploy_output, "html/assets"));
-    await fs.mkdir(path.join(paths.deploy_output, "html/assets/img"));
 
-    await fs.copy(paths.ovrt, paths.deploy_output);
-    await fs.copy(paths.html_base, path.join(paths.deploy_output, "html"));
-    await fs.copy("assets/img", path.join(paths.deploy_output, "html/assets/img"));
-    await fs.copy("build", path.join(paths.deploy_output, "html/build"));
+    const assets_definition = await fs.readJSON("./workshop_assets.json");
+    const assets = assets_definition.all;
+
+    if (is_production) {
+        Object.assign(assets, assets_definition.prod);
+    } else {
+        Object.assign(assets, assets_definition.dev);
+    }
+
+    for (let asset in assets) {
+        let definition = assets[asset];
+        // allows the use of a simple string to define the destination instead of writing a whole object
+        if (typeof definition !== "object") {
+            definition = { to: definition };
+        }
+        // the "to" key is optional, if it's missing the top level is implied
+        if (definition.to === undefined) {
+            definition.to = "";
+        }
+
+        const dest = path.join(paths.deploy_output, definition.to);
+
+        // make sure destination exists
+        await fs.mkdirp(dest);
+
+        const files = glob.sync(asset);
+        for (let file of files) {
+            const stat = fs.lstatSync(file);
+
+            if (stat.isDirectory()) {
+                await fs.copy(file, dest);
+            } else if (stat.isFile()) {
+                let filename = path.basename(file);
+                if (definition.rename !== undefined) {
+                    filename = definition.rename;
+                }
+                await fs.copy(file, path.join(dest, filename));
+            }
+        }
+    }
 });
 
 gulp.task('build', gulp.series([ 'clean', 'scripts', 'styles', "deploy" ]));

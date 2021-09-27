@@ -1,0 +1,15 @@
+{
+	"all": {
+		"src/ovrt/entry.txt": "",
+		"src/ovrt/thumbnail.png": "",
+		"src/html/": "html",
+		"assets/img/ovrt_sp_icon.png": "html/assets/img",
+		"build": "html/build"
+	},
+	"prod": {
+		"src/ovrt/icon.png": ""
+	},
+	"dev": {
+		"src/ovrt/icon_dev.png": { "rename": "icon.png" }
+	}
+}
