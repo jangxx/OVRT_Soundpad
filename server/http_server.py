@@ -1,13 +1,16 @@
+from version import BRIDGE_VERSION
+
 from sanic import Sanic, response
 
 from cors import add_cors_headers
 from options import setup_options
 
+# setup web server
 app = Sanic("ovrt_sp")
 
 @app.route("/api/identify")
 async def identify(request):
-	return response.text("ok")
+	return response.json({ "version": BRIDGE_VERSION })
 
 @app.route("/api/soundlist")
 async def get_soundlist(request):

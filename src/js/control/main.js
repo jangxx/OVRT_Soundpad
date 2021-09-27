@@ -1,3 +1,4 @@
+const BRIDGE_VERSION = require("../../../bridge_version.json");
 const Vue = require("vue/dist/vue.common");
 const { WebSocketConn } = require("../lib/websocket");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
@@ -7,6 +8,9 @@ const app = new Vue({
 		connected: false,
 		sp_connected: false,
 		edit_mode: false,
+		bridge_update_required: false,
+		bridge_update_available: false,
+		version_checked: false,
 		rows: 3,
 		columns: 4,
 		display_soundlist: false,
@@ -45,6 +49,13 @@ const app = new Vue({
 			}
 
 			return columns;
+		},
+		modal_visible: function() {
+			if (this.bridge_update_required) return 1;
+
+			if (!this.connected) return 2;
+
+			if (this.connected && !this.sp_connected) return 3;
 		}
 	},
 	methods: {
@@ -125,6 +136,25 @@ const app = new Vue({
 
 			if (t < 1) requestAnimationFrame(this.soundlist_scroll_animation);
 		},
+		checkVersion: function(version_obj) {
+			if (this.version_checked) return; // don't run this on every single state update
+			this.bridge_update_required = false;
+			this.bridge_update_available = false;
+
+			let version = version_obj;
+			if (version_obj === undefined) { // the very first version didn't send version data yet
+				version = { major: 1, minor: 0, patch: 0 };
+			}
+
+			if (version.major < BRIDGE_VERSION.major || (version.major == BRIDGE_VERSION.major && version.minor < BRIDGE_VERSION.minor)) {
+				this.bridge_update_required = true;
+				this.ws.close(false);
+				return;
+			}
+			if (version.major == BRIDGE_VERSION.major && version.minor == BRIDGE_VERSION.minor ** version.patch < BRIDGE_VERSION.patch) {
+				this.bridge_update_available = true;
+			}
+		}
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
@@ -164,6 +194,8 @@ const app = new Vue({
 			// console.log(evt.detail);
 			this.edit_mode = evt.detail.edit_mode;
 			this.sp_connected = evt.detail.soundpad_connected;
+
+			this.checkVersion(evt.detail.version);
 		});
 
 		this.ws.open("control");

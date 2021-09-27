@@ -11,14 +11,21 @@
 	</head>
 	<body>
 		<main>
-			<div class="modal-background" v-if="!connected">
+			<div class="modal-background" v-if="modal_visible == 1">
+				<div class="modal-dialog">
+					<h1>Bridge update required</h1>
+					<span>Please follow the instructions at <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> to install the latest version of the bridge.</span>
+				</div>
+			</div>
+
+			<div class="modal-background" v-if="modal_visible == 2">
 				<div class="modal-dialog">
 					<h1>Bridge app is not running</h1>
 					<span>Please follow the instructions at <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> on how to install the bridge app.</span>
 				</div>
 			</div>
 
-			<div class="modal-background" v-if="connected && !sp_connected">
+			<div class="modal-background" v-if="modal_visible == 3">
 				<div class="modal-dialog">
 					<h1>Soundpad is not running</h1>
 					<span>

@@ -4,11 +4,29 @@ class WebSocketConn extends EventTarget {
 
 		this._socket = null;
 		this._reconnectTimeout = null;
+		this._preventReconnect = false;
 
 		this._msgQueue = [];
 	}
 
+	close(noReconnect = true) {
+		if (this._socket !== null) {
+			this._socket.close();
+			this._socket = null;
+		}
+
+		if (this._reconnectTimeout !== null) {
+			clearTimeout(this._reconnectTimeout);
+			this._reconnectTimeout = null;
+		}
+
+		this._msgQueue = [];
+		this._preventReconnect = noReconnect;
+	}
+
 	open(registerType, isReconnect = false) {
+		this._preventReconnect = false;
+
 		this._reconnectTimeout = null;
 		this._socket = new WebSocket("ws://localhost:64153");
 
@@ -39,7 +57,7 @@ class WebSocketConn extends EventTarget {
 			this._socket = null;
 			this.dispatchEvent(new Event("close"));
 
-			if (this._reconnectTimeout == null) {
+			if (this._reconnectTimeout == null && !this._preventReconnect) {
 				this._reconnectTimeout = setTimeout(() => {
 					this.open(registerType, true);
 				}, 1000); // reconnect after 1 sec

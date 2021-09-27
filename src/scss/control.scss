@@ -6,6 +6,7 @@ main {
 	align-items: stretch;
 	justify-content: space-around;
 	height: 100%;
+	overflow: hidden;
 	
 	.button-row {
 		flex-grow: 1;

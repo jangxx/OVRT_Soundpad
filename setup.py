@@ -8,6 +8,7 @@ build_exe_options = {
 	"excludes": [ ],
 	"include_files": [
 		("./assets/img/ovrt_sp_icon.png", "ovrt_sp_icon.png"),
+		("./bridge_version.json", "bridge_version.json"),
 	],
 	"zip_include_packages": "*",
 	"zip_exclude_packages": [ "pystray" ],

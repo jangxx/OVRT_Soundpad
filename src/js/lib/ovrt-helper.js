@@ -22,7 +22,8 @@ window.APIInit = function() {
 	const event = new Event("api-ready");
 	setTimeout(() => { // can't execute the event code in the same context apparently
 		this.dispatchEvent(event);
-	}, 0);	
+	}, 0);
+	
 };
 
 window.DevicePositionUpdate = function(deviceId, deviceInfo) {
@@ -94,8 +95,6 @@ window.globalCallbackCounter = 0;
 window.globalCallbacks = {};
 
 window.callGlobalCallback = function(...args) {
-	// console.log(args);
-
 	const id = args.pop();
 
 	if (!(id in window.globalCallbacks)) return;
@@ -229,7 +228,15 @@ class OVRTOverlay {
 	}
 	
 	setRenderingEnabled(enable) {
-		window.SetOverlaySetting(`${this._uid}`, 9, enable);
+		window.SetOverlaySetting(`${this._uid}`, 9, !enable);
+	}
+	
+	setInputBlocked(enable) {
+		window.SetOverlaySetting(`${this._uid}`, 10, enable);
+	}
+	
+	setBrowserResolution(width, height) {
+		window.SetBrowserResolution(`${this._uid}`, width, height);
 	}
 }
 
@@ -289,8 +296,6 @@ class OVRT {
 	}
 
 	_callAPIFunction(name, args) {
-		// console.log("call", name, args);
-
 		if (!window.GLOBAL_API_READY && this._enable_function_queue) {
 			this._function_queue.push({ name, args });
 			return null;

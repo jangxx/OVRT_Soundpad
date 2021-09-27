@@ -2,6 +2,7 @@ import asyncio, json
 
 from config import Config
 from soundpad_manager import SoundpadManager
+from version import BRIDGE_VERSION
 
 import websockets
 from sanic.log import logger
@@ -19,6 +20,7 @@ class WebsocketServer:
 		self._state = {
 			"edit_mode": False,
 			"soundpad_connected": False,
+			"version": BRIDGE_VERSION,
 		}
 
 		self._index_sockets = set()
