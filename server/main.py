@@ -3,6 +3,7 @@ import asyncio
 import subprocess
 import sys
 import tkinter as tk
+from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 
 import pystray
@@ -43,6 +44,12 @@ def set_soundpad_path():
 
 	global_config.set(["soundpad", "autostart_path"], filename)
 
+def show_error(message, title="Error"):
+	root = tk.Tk()
+	root.withdraw()
+	messagebox.showerror(title, message)
+	root.destroy()
+
 def clear_soundpad_path():
 	global_config.set(["soundpad", "autostart_path"], None)
 
@@ -64,7 +71,17 @@ trayicon.icon = trayimage
 
 # all asyncio related stuff happens here
 async def async_main():
-	await http_server # wait for the http server to start
+	try:
+		await http_server # wait for the http server to start
+	except OSError as e:
+		if e.errno == 10048:
+			show_error(f"Cannot bind to port {global_config.get(['server', 'http_port'])}. Is another instance of the bridge already running?")
+		else:
+			show_error(f"Could not start the websocket server: {e.strerror}")
+		return exit_program()
+	except Exception as e:
+		show_error(f"Could not start the websocket server: {repr(e)}")
+		return exit_program()
 
 	initialized_state = False
 
@@ -87,14 +104,24 @@ def main(icon):
 
 	asyncio.set_event_loop(main_loop)
 
-	ws_server.start()
+	try:
+		ws_server.start()
+	except OSError as e:
+		if e.errno == 10048:
+			show_error(f"Cannot bind to port {global_config.get(['server', 'ws_port'])}. Is another instance of the bridge already running?")
+		else:
+			show_error(f"Could not start the websocket server: {e.strerror}")
+		return exit_program()
+	except Exception as e:
+		show_error(f"Could not start the websocket server: {repr(e)}")
+		return exit_program()
 
 	main_loop.run_until_complete(async_main())
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-	# is soundpad is not running try launching it
+	# if soundpad is not running try launching it
 	if global_config.get(["soundpad", "autostart_path"]) is not None and not sp_manager.is_initialized():
 		subprocess.Popen([ global_config.get(["soundpad", "autostart_path"]) ], start_new_session=True)
 

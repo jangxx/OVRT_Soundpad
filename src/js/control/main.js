@@ -12,8 +12,10 @@ const app = new Vue({
 		bridge_update_required: false,
 		bridge_update_available: false,
 		version_checked: false,
+		current_page: 0,
 		rows: 3,
 		columns: 4,
+		pages: 1,
 		display_soundlist: false,
 		full_soundlist: {},
 		sounds: {},
@@ -38,7 +40,7 @@ const app = new Vue({
 			for (let c = 0; c < this.columns; c++) {
 				const row = [];
 				for (let r = 0; r < this.rows; r++) {
-					const sound_index = `${r},${c}`;
+					const sound_index = `${this.current_page}:${r},${c}`;
 
 					if (sound_index in this.sounds && this.sounds[sound_index] in this.full_soundlist) {
 						row.push(this.full_soundlist[this.sounds[sound_index]]);
@@ -52,10 +54,14 @@ const app = new Vue({
 			return columns;
 		},
 		soundlist_order: function() {
-			const soundlist = matchSorter(Object.keys(this.full_soundlist), this.sound_search_input, { keys: [item => this.full_soundlist[item].title] })
-			Vue.nextTick(() => {
-				this.update_soundlist_scroll();
-			});
+			const soundlist = matchSorter(Object.keys(this.full_soundlist), this.sound_search_input, { keys: [item => this.full_soundlist[item].title] });
+
+			if (this.$refs.soundlist !== undefined) {
+				Vue.nextTick(() => {
+					this.update_soundlist_scroll();
+				});
+			}
+			
 			return soundlist;
 		},
 		modal_visible: function() {
@@ -83,10 +89,13 @@ const app = new Vue({
 
 					Vue.nextTick(() => {
 						this.update_soundlist_scroll();
+						if (this.$refs.sound_search_input != undefined) {
+							this.$refs.sound_search_input.focus();
+						}
 					});
 				});
 			} else {
-				const sound_index = `${row},${col}`;
+				const sound_index = `${this.current_page}:${row},${col}`;
 
 				if (sound_index in this.sounds) {
 					this.ws.sendCommand("play-sound", { sound: this.sounds[sound_index] })
@@ -94,7 +103,7 @@ const app = new Vue({
 			}
 		},
 		selectSound: function(sound_id) {
-			this.ws.sendCommand("select-sound", { row: this.selected_tile.row, col: this.selected_tile.col, sound: sound_id });
+			this.ws.sendCommand("select-sound", { row: this.selected_tile.row, col: this.selected_tile.col, page: this.current_page, sound: sound_id });
 			this.display_soundlist = false;
 		},
 		stopSound: function() {
@@ -190,16 +199,25 @@ const app = new Vue({
 			if ((this.rows != evt.detail.board.rows || this.columns != evt.detail.board.columns) && this.ovrt_overlay !== null) {
 				this.ovrt_overlay.setContent(0, {
 					url: "control.html",
-					width: evt.detail.board.columns * 250,
+					width: Math.max(evt.detail.board.columns * 250, 800),
 					height: evt.detail.board.rows * 200 + 50,
 				});
 			}
 
 			this.rows = evt.detail.board.rows;
 			this.columns = evt.detail.board.columns;
+			this.pages = evt.detail.board.pages;
 
 			// console.log("sounds", JSON.stringify(evt.detail.sounds));
 			this.sounds = evt.detail.sounds;
+
+			for (let sound_pos in this.sounds) {
+				if (sound_pos.search(":") == -1) {
+					this.sounds["0:" + sound_pos] = this.sounds[sound_pos];
+					delete this.sounds[sound_pos];
+				}
+			}
+
 			this.refreshSoundlist();
 		});
 

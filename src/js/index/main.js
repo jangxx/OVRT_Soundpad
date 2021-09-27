@@ -32,6 +32,7 @@ const app = new Vue({
 		bridge_update_available: false,
 		rows: 3,
 		columns: 4,
+		pages: 1,
 		overlay_id: -1,
 		last_overlay_position: null,
 		version_checked: false,
@@ -72,7 +73,7 @@ const app = new Vue({
 
 				overlay.setContent(0, {
 					url: "control.html",
-					width: this.columns * 250,
+					width: Math.max(this.columns * 250, 800),
 					height: this.rows * 200 + 50,
 				});
 			}
@@ -101,6 +102,14 @@ const app = new Vue({
 			if (this.columns > 10) this.columns = 10;
 
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
+		},
+		modPages: function(dir) {
+			this.pages += dir;
+
+			if (this.pages < 1) this.pages = 1;
+			if (this.pages > 10) this.pages = 10;
+
+			this.ws.sendCommand("change-settings", { setting: ["board", "pages" ], value: this.pages })
 		},
 		toggleEditMode: function() {
 			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });

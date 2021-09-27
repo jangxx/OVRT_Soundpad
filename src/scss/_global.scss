@@ -41,6 +41,11 @@ html, body {
 
 	&.narrow {
 		padding: 16px 16px;
+
+		&.small {
+			padding-top: 10px;
+			padding-bottom: 10px;
+		}
 	}
 
 	&.green {

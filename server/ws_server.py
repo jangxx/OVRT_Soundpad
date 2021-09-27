@@ -64,9 +64,13 @@ class WebsocketServer:
 			await self.emitEvent("state-update", self._state)
 
 		elif command == "select-sound":
-			# calc index of the sound
-			board = self._config.get("board")
-			sound_index = f"{params['row']},{params['col']}"
+			if not 0 <= params['page'] <= 9 or not 1 <= params['row'] <= 10 or not 1 <= params['col'] <= 10:
+				return # out of bounds
+
+			if params['page'] == 0 and self._config.exists([ "sounds", f"{params['row']},{params['col']}" ]):
+				self._config.delete([ "sounds", f"{params['row']},{params['col']}" ])
+
+			sound_index = f"{params['page']}:{params['row']},{params['col']}"
 
 			self._config.set([ "sounds", sound_index ], params["sound"])
 			await self.emitEvent("settings-change", self._config.getExternalSerialized(), index_sockets=False)
@@ -110,7 +114,11 @@ class WebsocketServer:
 				if msg["type"] == "command":
 					if not "command" in msg or not "params" in msg:
 						continue
-					await self.commandHandler(socket, msg["command"], msg["params"])
+					try:
+						await self.commandHandler(socket, msg["command"], msg["params"])
+					except Exception as e: # if we get garbage data just ignore
+						print(repr(e))
+						pass
 
 				# print(msg)
 
