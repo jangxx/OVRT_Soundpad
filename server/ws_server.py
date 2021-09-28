@@ -64,7 +64,7 @@ class WebsocketServer:
 			await self.emitEvent("state-update", self._state)
 
 		elif command == "select-sound":
-			if not 0 <= params['page'] <= 9 or not 1 <= params['row'] <= 10 or not 1 <= params['col'] <= 10:
+			if not 0 <= params['page'] <= 9 or not 0 <= params['row'] <= 9 or not 0 <= params['col'] <= 9:
 				return # out of bounds
 
 			if params['page'] == 0 and self._config.exists([ "sounds", f"{params['row']},{params['col']}" ]):
@@ -117,17 +117,8 @@ class WebsocketServer:
 					try:
 						await self.commandHandler(socket, msg["command"], msg["params"])
 					except Exception as e: # if we get garbage data just ignore
-						print(repr(e))
+						print(f"Error in commandHandler: {msg['command']}({msg['params']}): {repr(e)}")
 						pass
-
-				# print(msg)
-
-				# await socket.send(json.dumps(msg))
-
-                # if msg == "register":
-                #     self._clients.add(socket)
-                # elif msg == "discover":
-                #     await socket.send("success")
 
 		except websockets.ConnectionClosedError:
 			pass

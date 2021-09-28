@@ -165,6 +165,7 @@ const app = new Vue({
 		this.ws.addEventListener("settings-change", evt => {
 			this.rows = evt.detail.board.rows;
 			this.columns = evt.detail.board.columns;
+			this.pages = evt.detail.board.pages;
 			this.last_overlay_position = evt.detail.overlay;
 		});
 

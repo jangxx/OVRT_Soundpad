@@ -208,6 +208,10 @@ const app = new Vue({
 			this.columns = evt.detail.board.columns;
 			this.pages = evt.detail.board.pages;
 
+			if (this.pages <= this.current_page) {
+				this.current_page = 0;
+			}
+
 			// console.log("sounds", JSON.stringify(evt.detail.sounds));
 			this.sounds = evt.detail.sounds;
 

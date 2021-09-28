@@ -5,10 +5,25 @@ import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
+import argparse
+import os
 
 import pystray
 from PIL import Image
+from appdirs import user_config_dir
 
+parser = argparse.ArgumentParser(description="Bridges the gap between OVR Toolkit and Soundpad")
+parser.add_argument("--stdout", action="store_true", help="Log to stdout and stderr instead of redirecting all output to the log file", dest="use_stdout")
+
+args = parser.parse_args()
+
+if not args.use_stdout:
+	log_file_path = os.path.join(user_config_dir("OVRT Soundpad", "jangxx"), "output.log")
+	log_file = open(log_file_path, "a", buffering=1)
+	sys.stdout = log_file
+	sys.stderr = log_file
+
+# this has to happen after we setup the stdout and stderr redirection
 from config import Config
 from ws_server import WebsocketServer
 from http_server import app
