@@ -1,7 +1,8 @@
-from version import BRIDGE_VERSION
+import webbrowser
 
 from sanic import Sanic, response
 
+from version import BRIDGE_VERSION
 from cors import add_cors_headers
 from options import setup_options
 
@@ -15,6 +16,11 @@ async def identify(request):
 @app.route("/api/soundlist")
 async def get_soundlist(request):
 	return response.json({ "soundlist": app.ctx.sp_manager.getSoundList() })
+
+@app.route("/api/open-github", methods=["POST"])
+async def open_github_url(request):
+	webbrowser.open("https://github.com/jangxx/OVRT_Soundpad/releases/", new=1)
+	return response.text("ok")
 
 # Add OPTIONS handlers to any route that is missing it
 app.register_listener(setup_options, "before_server_start")

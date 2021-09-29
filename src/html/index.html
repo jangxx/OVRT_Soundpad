@@ -15,6 +15,9 @@
 				<div class="modal-dialog">
 					<h1>Bridge update required</h1>
 					<span>Please follow the instructions at <a href="https://github.com/jangxx/OVRT_Soundpad">https://github.com/jangxx/OVRT_Soundpad</a> to install the latest version of the bridge.</span>
+					<div v-if="bridge_capabilities.show_github_url" style="margin-top: 20px">
+						<div class="button green" @click="open_github_url()">Open URL in browser</div>
+					</div>
 				</div>
 			</div>
 
@@ -32,6 +35,17 @@
 						This app only works in conjunction with <a href="https://leppsoft.com/soundpad/en/">Soundpad</a>. 
 						Please start it in order to use this app.
 						It may take up to five seconds for this message to disappear.
+					</span>
+				</div>
+			</div>
+
+			<div class="modal-background" v-if="modal_visible == 4">
+				<div class="modal-dialog">
+					<h1>Bridge version mismatch</h1>
+					<span>
+						The bridge version is higher than the version expected by this app. 
+						This can only happen if you're a beta tester and are not running the development version or if the Steam Workshop messed up somehow.
+						Either way, we can not continue like this, please start the correct app version or restart OVR Toolkit to download the latest version from the Workshop.
 					</span>
 				</div>
 			</div>

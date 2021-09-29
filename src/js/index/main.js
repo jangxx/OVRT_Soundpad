@@ -1,7 +1,8 @@
-const BRIDGE_VERSION = require("../../../bridge_version.json");
 const Vue = require("vue/dist/vue.common");
+
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
+const VersionCheckMixin = require("../lib/VersionCheckMixin");
 
 Vue.component("round-switch", {
 	template: `
@@ -28,22 +29,23 @@ const app = new Vue({
 		connected: false,
 		edit_mode: false,
 		sp_connected: true, // set to true initially to prevent flashing of the modals
-		bridge_update_required: false,
-		bridge_update_available: false,
 		rows: 3,
 		columns: 4,
 		pages: 1,
 		overlay_id: -1,
 		last_overlay_position: null,
-		version_checked: false,
 	},
+	mixins: [ VersionCheckMixin ],
 	computed: {
 		modal_visible: function() {
 			if (this.bridge_update_required) return 1;
+			if (this.bridge_too_new) return 4;
 
 			if (!this.connected) return 2;
 
 			if (this.connected && !this.sp_connected) return 3;
+
+			return 0;
 		}
 	},
 	methods: {
@@ -114,25 +116,6 @@ const app = new Vue({
 		toggleEditMode: function() {
 			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });
 		},
-		checkVersion: function(version_obj) {
-			if (this.version_checked) return; // don't run this on every single state update
-			this.bridge_update_required = false;
-			this.bridge_update_available = false;
-
-			let version = version_obj;
-			if (version_obj === undefined) { // the very first version didn't send version data yet
-				version = { major: 1, minor: 0, patch: 0 };
-			}
-
-			if (version.major < BRIDGE_VERSION.major || (version.major == BRIDGE_VERSION.major && version.minor < BRIDGE_VERSION.minor)) {
-				this.bridge_update_required = true;
-				this.ws.close(false);
-				return;
-			}
-			if (version.major == BRIDGE_VERSION.major && version.minor == BRIDGE_VERSION.minor ** version.patch < BRIDGE_VERSION.patch) {
-				this.bridge_update_available = true;
-			}
-		}
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
@@ -174,7 +157,9 @@ const app = new Vue({
 			this.edit_mode = evt.detail.edit_mode;
 			this.sp_connected = evt.detail.soundpad_connected;
 
-			this.checkVersion(evt.detail.version);
+			if(!this.checkVersion(evt.detail.version)) {
+				this.ws.close(false);
+			};
 		});
 
 		this.ws.open("index");

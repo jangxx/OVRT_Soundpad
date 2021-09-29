@@ -1,17 +1,15 @@
-const BRIDGE_VERSION = require("../../../bridge_version.json");
 const Vue = require("vue/dist/vue.common");
 const { matchSorter } = require("match-sorter");
+
 const { WebSocketConn } = require("../lib/websocket");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
+const VersionCheckMixin = require("../lib/VersionCheckMixin");
 
 const app = new Vue({
 	data: {
 		connected: false,
 		sp_connected: false,
 		edit_mode: false,
-		bridge_update_required: false,
-		bridge_update_available: false,
-		version_checked: false,
 		current_page: 0,
 		rows: 3,
 		columns: 4,
@@ -34,6 +32,7 @@ const app = new Vue({
 			}
 		},
 	},
+	mixins: [ VersionCheckMixin ],
 	computed: {
 		full_board: function() {
 			const columns = [];
@@ -66,10 +65,13 @@ const app = new Vue({
 		},
 		modal_visible: function() {
 			if (this.bridge_update_required) return 1;
+			if (this.bridge_too_new) return 4;
 
 			if (!this.connected) return 2;
 
 			if (this.connected && !this.sp_connected) return 3;
+
+			return 0;
 		}
 	},
 	methods: {
@@ -158,25 +160,6 @@ const app = new Vue({
 
 			if (t < 1) requestAnimationFrame(this.soundlist_scroll_animation);
 		},
-		checkVersion: function(version_obj) {
-			if (this.version_checked) return; // don't run this on every single state update
-			this.bridge_update_required = false;
-			this.bridge_update_available = false;
-
-			let version = version_obj;
-			if (version_obj === undefined) { // the very first version didn't send version data yet
-				version = { major: 1, minor: 0, patch: 0 };
-			}
-
-			if (version.major < BRIDGE_VERSION.major || (version.major == BRIDGE_VERSION.major && version.minor < BRIDGE_VERSION.minor)) {
-				this.bridge_update_required = true;
-				this.ws.close(false);
-				return;
-			}
-			if (version.major == BRIDGE_VERSION.major && version.minor == BRIDGE_VERSION.minor ** version.patch < BRIDGE_VERSION.patch) {
-				this.bridge_update_available = true;
-			}
-		}
 	},
 	created: function() {
 		this.ws = new WebSocketConn();
@@ -197,11 +180,7 @@ const app = new Vue({
 
 		this.ws.addEventListener("settings-change", evt => {
 			if ((this.rows != evt.detail.board.rows || this.columns != evt.detail.board.columns) && this.ovrt_overlay !== null) {
-				this.ovrt_overlay.setContent(0, {
-					url: "control.html",
-					width: Math.max(evt.detail.board.columns * 250, 800),
-					height: evt.detail.board.rows * 200 + 50,
-				});
+				this.ovrt_overlay.setBrowserResolution(Math.max(evt.detail.board.columns * 250, 800), evt.detail.board.rows * 200 + 50);
 			}
 
 			this.rows = evt.detail.board.rows;
@@ -230,7 +209,9 @@ const app = new Vue({
 			this.edit_mode = evt.detail.edit_mode;
 			this.sp_connected = evt.detail.soundpad_connected;
 
-			this.checkVersion(evt.detail.version);
+			if(!this.checkVersion(evt.detail.version)) {
+				this.ws.close(false);
+			};
 
 			if (!this.edit_mode) {
 				this.display_soundlist = false;
