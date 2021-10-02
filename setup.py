@@ -1,6 +1,7 @@
 import sys
 import os
 from cx_Freeze import setup, Executable
+from server.version import get_version_string
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {
@@ -23,8 +24,8 @@ if sys.platform == "win32":
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "server"))
 
-setup(name = "ovrt_sp",
-	version = "1.0",
+setup(name = "ovrt_soundpad_bridge",
+	version = get_version_string(),
     description = "OVR Toolkit Soundpad Bridge",
     options = { "build_exe": build_exe_options },
     executables = [ Executable("server/main.py", base=base, target_name="ovrt_soundpad_bridge", icon = "./assets/ico/ovrt_sp_icon.ico") ],

@@ -10,3 +10,6 @@ else:
 
 with open(version_file_path, "r") as version_file:
 	BRIDGE_VERSION = json.load(version_file)
+
+def get_version_string():
+	return f"{BRIDGE_VERSION['major']}.{BRIDGE_VERSION['minor']}.{BRIDGE_VERSION['patch']}"
