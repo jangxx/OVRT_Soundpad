@@ -11,6 +11,11 @@ Simply go to the [Releases](https://github.com/jangxx/OVRT_Soundpad/releases) an
 Extract this file to a directory of your liking and you are done.
 Simply execute ovrt_soundpad_bridge.exe in the unpacked directory.
 
+### Updating the bridge
+
+To update the bridge simply delete all files from the previous installation and copy the files from the new version into the same folder.
+The settings are kept in a different place, so it's always safe to completely delete the whole installation directory.
+
 ## Auto-launch Soundpad with the bridge
 
 If you want to avoid the hassle of always having to start two programs (Soundpad and the bridge), you can instruct the bridge to automatically launch Soundpad if it's not running already, in which case you only have to start the bridge app.
