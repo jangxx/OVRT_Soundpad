@@ -7,6 +7,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 import argparse
 import os
+import pathlib
 
 import pystray
 from PIL import Image
@@ -16,6 +17,9 @@ parser = argparse.ArgumentParser(description="Bridges the gap between OVR Toolki
 parser.add_argument("--stdout", action="store_true", help="Log to stdout and stderr instead of redirecting all output to the log file", dest="use_stdout")
 
 args = parser.parse_args()
+
+# create config dir if it doesn't exist
+pathlib.Path(user_config_dir("OVRT Soundpad", "jangxx")).mkdir(parents=True, exist_ok=True)
 
 if not args.use_stdout:
 	log_file_path = os.path.join(user_config_dir("OVRT Soundpad", "jangxx"), "output.log")
