@@ -85,6 +85,12 @@ class WebsocketServer:
 		elif command == "pause-sound":
 			self._soundpad.pauseSound()
 
+		elif command == "log":
+			if "message" in params:
+				logger.info("Log: " + params["message"])
+			else:
+				logger.info("Log: " + json.dumps(params))
+
 	async def emitEvent(self, event, data, socket=None, index_sockets=True, control_sockets=True):
 		msg = json.dumps({ "type": "event", "event": event, "data": data })
 

@@ -3,6 +3,7 @@ const Vue = require("vue/dist/vue.common");
 const { OVRT, OVRTOverlay } = require("../lib/ovrt-helper");
 const { WebSocketConn } = require("../lib/websocket");
 const VersionCheckMixin = require("../lib/VersionCheckMixin");
+const { OVRTMethodProxy } = require("../lib/ovrt-method-proxy");
 
 Vue.component("round-switch", {
 	template: `
@@ -13,8 +14,9 @@ Vue.component("round-switch", {
 	props: [ "value", "disabled" ],
 });
 
+const MethodProxy = new OVRTMethodProxy();
+
 const INITIAL_POSITION = {
-	attachedDevice: 3,
 	curvature: 0,
 	ecoMode: true,
 	framerate: 60,
@@ -90,6 +92,7 @@ const app = new Vue({
 			this.overlay_id = -1;
 		},
 		modRows: function(dir) {
+			this.interaction();
 			this.rows += dir;
 
 			if (this.rows < 1) this.rows = 1;
@@ -98,6 +101,7 @@ const app = new Vue({
 			this.ws.sendCommand("change-settings", { setting: ["board", "rows" ], value: this.rows })
 		},
 		modColumns: function(dir) {
+			this.interaction();
 			this.columns += dir;
 
 			if (this.columns < 1) this.columns = 1;
@@ -106,6 +110,7 @@ const app = new Vue({
 			this.ws.sendCommand("change-settings", { setting: ["board", "columns" ], value: this.columns })
 		},
 		modPages: function(dir) {
+			this.interaction();
 			this.pages += dir;
 
 			if (this.pages < 1) this.pages = 1;
@@ -114,10 +119,23 @@ const app = new Vue({
 			this.ws.sendCommand("change-settings", { setting: ["board", "pages" ], value: this.pages })
 		},
 		toggleEditMode: function() {
+			this.interaction();
 			this.ws.sendCommand("set-edit-mode", { value: this.edit_mode });
+		},
+		interaction: function() {
+			const now = new Date().getTime();
+
+			if (now - this.last_interaction > 5000) { // check after 5 seconds of inactivity
+				this.ovrt_api.isAppRunningWithTitle("Soundpad Soundboard").then(overlay_id => {
+					this.overlay_id = overlay_id;
+				});
+			}
+
+			this.last_interaction = now;
 		},
 	},
 	created: function() {
+		this.last_interaction = new Date().getTime();
 		this.ws = new WebSocketConn();
 		this.ovrt_api = new OVRT({ function_queue: true });
 
@@ -162,7 +180,18 @@ const app = new Vue({
 			};
 		});
 
+		if (process.env.ENV == "development") {
+			MethodProxy.on("log", message => {
+				this.ws.sendCommand("log", { message });
+			});
+			MethodProxy.enable();
+		}
+
 		this.ws.open("index");
+
+		window.addEventListener("touchmove", () => {
+			console.log("move");
+		})
 	},
 });
 

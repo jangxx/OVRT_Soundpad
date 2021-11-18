@@ -10,7 +10,7 @@
 		<script src="build/js/index.js" charset="UTF-8"></script>
 	</head>
 	<body>
-		<main>
+		<main @mousemove="interaction">
 			<div class="modal-background" v-if="modal_visible == 1">
 				<div class="modal-dialog">
 					<h1>Bridge update required</h1>
