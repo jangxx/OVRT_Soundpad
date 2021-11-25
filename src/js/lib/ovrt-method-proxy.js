@@ -42,6 +42,7 @@ class OVRTMethodProxy extends EventEmitter {
 	constructor() {
 		super();
 		this._api_ready = false;
+		this._methods_overwritten = false;
 		this._method_refs = {};
 
 		if (window.GLOBAL_API_READY !== undefined) {
@@ -55,6 +56,8 @@ class OVRTMethodProxy extends EventEmitter {
 	}
 
 	_overwriteMethods() {
+		if (this._methods_overwritten) return;
+
 		this._log("Overwriting methods");
 
 		for (let method of METHOD_LIST) {
@@ -72,6 +75,8 @@ class OVRTMethodProxy extends EventEmitter {
 				}).bind(this, method);
 			}
 		}
+
+		this._methods_overwritten = true;
 	}
 
 	enable() {

@@ -74,10 +74,16 @@ class WebSocketConn extends EventTarget {
 	}
 
 	sendCommand(command, params = {}) {
-		const msg = JSON.stringify({ type: "command", command, params });
+		let msg;
+		try{
+			msg = JSON.stringify({ type: "command", command, params });
+		} catch(e) {
+			console.log("couldn't stingify:", e);
+			return
+		}
 		// console.log("sent", msg);
 
-		if (this._socket != null) {
+		if (this._socket != null && this._socket.readyState == 1) {
 			this._socket.send(msg);
 		} else {
 			this._msgQueue.push(msg);

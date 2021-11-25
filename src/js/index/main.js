@@ -26,6 +26,12 @@ const INITIAL_POSITION = {
 	size: 0.4,
 };
 
+const RESTORE_POSITION = {
+	framerate: 60,
+	opacity: 1,
+	size: 0.4,
+};
+
 const app = new Vue({
 	data: {
 		connected: false,
@@ -59,11 +65,19 @@ const app = new Vue({
 			if (overlay_id == -1) {
 				let overlay_pos = this.last_overlay_position;
 
+				// console.log(overlay_pos);
+
 				let initial_placement = false;
 				if (overlay_pos == null) {
 					overlay_pos = await this.ovrt_api.getWristwatchTransform();
 					overlay_pos = Object.assign({}, overlay_pos, INITIAL_POSITION);
+
 					initial_placement = true;
+				}
+
+				// console.log(overlay_pos);
+				if (overlay_pos.size < 0.1 || overlay_pos.opacity == 0 || overlay_pos.framerate != 60) {
+					Object.assign(overlay_pos, RESTORE_POSITION);
 				}
 
 				const overlay = await this.ovrt_api.spawnOverlay(overlay_pos);
@@ -168,6 +182,13 @@ const app = new Vue({
 			this.columns = evt.detail.board.columns;
 			this.pages = evt.detail.board.pages;
 			this.last_overlay_position = evt.detail.overlay;
+
+			if (this.last_overlay_position !== null 
+				&& typeof this.last_overlay_position == "object"
+				&& Object.keys(INITIAL_POSITION).filter(k => !(k in this.last_overlay_position)).length > 0
+			) {
+				this.last_overlay_position = null;
+			}
 		});
 
 		this.ws.addEventListener("state-update", evt => {
