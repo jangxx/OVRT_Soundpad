@@ -211,7 +211,7 @@ const app = new Vue({
 		this.ws.open("index");
 
 		window.addEventListener("touchmove", () => {
-			console.log("move");
+			this.interaction();
 		})
 	},
 });
