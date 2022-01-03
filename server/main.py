@@ -8,6 +8,7 @@ from tkinter.filedialog import askopenfilename
 import argparse
 import os
 import pathlib
+import webbrowser
 
 import pystray
 from PIL import Image
@@ -72,10 +73,17 @@ def show_error(message, title="Error"):
 def clear_soundpad_path():
 	global_config.set(["soundpad", "autostart_path"], None)
 
+def toggle_steam_autolaunch():
+	global_config.set(["soundpad", "launch_soundpad_steam"], not global_config.get(["soundpad", "launch_soundpad_steam"]))
+
 def generate_menu():
-	yield pystray.MenuItem("Set Soundpad path", action=set_soundpad_path)
+	if global_config.get(["soundpad", "autostart_path"]) is None and not global_config.get(["soundpad", "launch_soundpad_steam"]):
+		yield pystray.MenuItem("Autostart Soundpad from Steam", action=toggle_steam_autolaunch, checked=lambda i: global_config.get(["soundpad", "launch_soundpad_steam"]))
+		yield pystray.MenuItem("Set Soundpad path", action=set_soundpad_path)
 	if global_config.get(["soundpad", "autostart_path"]) is not None:
 		yield pystray.MenuItem("Clear Soundpad path", action=clear_soundpad_path)
+	if global_config.get(["soundpad", "launch_soundpad_steam"]):
+		yield pystray.MenuItem("Autostart Soundpad from Steam", action=toggle_steam_autolaunch, checked=lambda i: global_config.get(["soundpad", "launch_soundpad_steam"]))
 	yield pystray.MenuItem("Exit", action=exit_program)
 
 traymenu = pystray.Menu(generate_menu)
@@ -143,5 +151,8 @@ if __name__ == '__main__':
 	# if soundpad is not running try launching it
 	if global_config.get(["soundpad", "autostart_path"]) is not None and not sp_manager.is_initialized():
 		subprocess.Popen([ global_config.get(["soundpad", "autostart_path"]) ], start_new_session=True)
+
+	if global_config.get(["soundpad", "launch_soundpad_steam"]) and not sp_manager.is_initialized():
+		webbrowser.open_new("steam://run/629520")
 
 	trayicon.run(setup=main)

@@ -39,7 +39,8 @@ class Config:
 			},
 			"overlay": {},
 			"soundpad": {
-				"autostart_path": None
+				"autostart_path": None,
+				"launch_soundpad_steam": False,
 			}
 		}
 
