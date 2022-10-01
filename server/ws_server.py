@@ -72,7 +72,28 @@ class WebsocketServer:
 
 			sound_index = f"{params['page']}:{params['row']},{params['col']}"
 
-			self._config.set([ "sounds", sound_index ], params["sound"])
+			if params["sound"] is not None:
+				self._config.set([ "sounds", sound_index ], params["sound"])
+			else:
+				self._config.delete_safe([ "sounds", sound_index ])
+
+			if not params["prevent_event"]:
+				await self.emitEvent("settings-change", self._config.getExternalSerialized(), index_sockets=False)
+
+		elif command == "clear-page":
+			if not 0 <= params['page'] <= 9:
+				return # out of bounds
+
+			for row in range(10):
+				for col in range(10):
+					sound_index = f"{params['page']}:{row},{col}"
+					self._config.delete_safe([ "sounds", sound_index ])
+
+					# also delete the legacy entries
+					if params['page'] == 0:
+						sound_index = f"{row},{col}"
+						self._config.delete_safe([ "sounds", sound_index ])
+
 			await self.emitEvent("settings-change", self._config.getExternalSerialized(), index_sockets=False)
 
 		elif command == "play-sound":

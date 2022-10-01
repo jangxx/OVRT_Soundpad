@@ -63,6 +63,19 @@
 				</div>
 			</div>
 
+			<div v-if="confirm_clear_page_visible" class="overlay">
+				<div class="modal-background" @click.self="confirm_clear_page_visible = false"></div>
+				<div class="overlay-box dialog-box" style="max-width: 500px; width: 100%">
+					<div>
+						Do you really want to clear the whole page, including non-visible items? This action is non reversible.
+					</div>
+					<div class="dialog-buttons">
+						<div class="button blue" @click="clearPage()" style="margin-right: 5px">Clear Page</div>
+						<div class="button red" @click="confirm_clear_page_visible = false">Cancel</div>
+					</div>
+				</div>
+			</div>
+
 			<div id="soundboard">
 				<div v-for="row in rows" class="button-row">
 					<div v-for="col in columns" class="soundboard-button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
@@ -75,9 +88,13 @@
 			</div>
 
 			<div id="controls">
-				<div style="float: left">
+				<div v-if="!edit_mode" style="float: left">
 					<div class="button small red" @click="stopSound()" style="margin-right: 5px">Stop</div>
 					<div class="button small blue" @click="pauseSound()">Play/Pause</div>
+				</div>
+				<div v-else style="float: left">
+					<div class="button small red" @click="confirmClearPage()" style="margin-right: 5px">Clear Page</div>
+					<div class="button small green" @click="fillPage()">Fill Page</div>
 				</div>
 				<div style="float: right" v-if="pages > 1">
 					<div v-for="page in pages" class="button small narrow" style="margin-left: 5px" :key="page" :style="{'background-color': 'hsl(' + (((page-1)/pages) * 360) + ', 65%, ' + ((page-1 == current_page) ? '50%' : '20%') + ')'}" @click="current_page = page-1">{{ page }}</div>

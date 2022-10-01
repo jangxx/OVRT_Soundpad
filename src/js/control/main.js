@@ -15,6 +15,7 @@ const app = new Vue({
 		columns: 4,
 		pages: 1,
 		display_soundlist: false,
+		confirm_clear_page_visible: false,
 		full_soundlist: {},
 		sounds: {},
 		selected_tile: { row: null, col: null },
@@ -34,7 +35,7 @@ const app = new Vue({
 	},
 	mixins: [ VersionCheckMixin ],
 	computed: {
-		full_board: function() {
+		full_board() {
 			const columns = [];
 			for (let c = 0; c < this.columns; c++) {
 				const row = [];
@@ -52,7 +53,7 @@ const app = new Vue({
 
 			return columns;
 		},
-		soundlist_order: function() {
+		soundlist_order() {
 			const soundlist = matchSorter(Object.keys(this.full_soundlist), this.sound_search_input, { keys: [item => this.full_soundlist[item].title] });
 
 			if (this.$refs.soundlist !== undefined) {
@@ -63,7 +64,7 @@ const app = new Vue({
 			
 			return soundlist;
 		},
-		modal_visible: function() {
+		modal_visible() {
 			if (this.bridge_update_required) return 1;
 			if (this.bridge_too_new) return 4;
 
@@ -75,13 +76,13 @@ const app = new Vue({
 		}
 	},
 	methods: {
-		refreshSoundlist: async function() {
+		async refreshSoundlist() {
 			const resp = await fetch("http://localhost:64152/api/soundlist");
 			const data = await resp.json();
 
 			this.full_soundlist = data.soundlist;
 		},
-		sendClick: function(col, row) {
+		sendClick(col, row) {
 			if (this.edit_mode) {
 				this.refreshSoundlist().then(() => {
 					this.display_soundlist = true;
@@ -104,35 +105,51 @@ const app = new Vue({
 				}
 			}
 		},
-		selectSound: function(sound_id) {
-			this.ws.sendCommand("select-sound", { row: this.selected_tile.row, col: this.selected_tile.col, page: this.current_page, sound: sound_id });
+		selectSound(sound_id) {
+			this.ws.sendCommand("select-sound", {
+				row: this.selected_tile.row,
+				col: this.selected_tile.col,
+				page: this.current_page,
+				sound: sound_id,
+				prevent_event: false,
+			});
 			this.display_soundlist = false;
 		},
-		stopSound: function() {
+		stopSound() {
 			this.ws.sendCommand("stop-sound");
 		},
-		pauseSound: function() {
+		pauseSound() {
 			this.ws.sendCommand("pause-sound");
 		},
-		resize: function() {
+		confirmClearPage() {
+			this.confirm_clear_page_visible = true;
+		},
+		clearPage() {
+			this.ws.sendCommand("clear-page", { page: this.current_page });
+			this.confirm_clear_page_visible = false;
+		},
+		fillPage() {
+
+		},
+		resize() {
 			if (this.$refs.soundlist !== undefined) {
 				this.update_soundlist_scroll();
 			}
 		},
-		update_soundlist_scroll: function() {
+		update_soundlist_scroll() {
 			this.soundlist_scroll.scrollTop = this.$refs.soundlist.scrollTop;
 			this.soundlist_scroll.scrollHeight = this.$refs.soundlist.scrollHeight;
 			this.soundlist_scroll.offsetHeight = this.$refs.soundlist.offsetHeight;
 		},
-		soundlist_scroll_up: function() {
+		soundlist_scroll_up() {
 			if (!("soundlist" in this.$refs)) return;
 			this.soundlist_scroll_animation_start(-150, 200)
 		},
-		soundlist_scroll_down: function() {
+		soundlist_scroll_down() {
 			if (!("soundlist" in this.$refs)) return;
 			this.soundlist_scroll_animation_start(150, 200);
 		},
-		soundlist_scroll_animation_start: function(dist, time) {
+		soundlist_scroll_animation_start(dist, time) {
 			if (!("soundlist" in this.$refs)) return;
 
 			this.soundlist_scroll.animation.start = performance.now();
@@ -142,7 +159,7 @@ const app = new Vue({
 
 			this.soundlist_scroll_animation();
 		},
-		soundlist_scroll_animation: function() {
+		soundlist_scroll_animation() {
 			function f(x) {
 				if (x <= 0.5) {
 					return 2 * Math.pow(x, 2);
@@ -161,7 +178,7 @@ const app = new Vue({
 			if (t < 1) requestAnimationFrame(this.soundlist_scroll_animation);
 		},
 	},
-	created: function() {
+	created() {
 		this.ws = new WebSocketConn();
 		this.ovrt_api = new OVRT({ function_queue: true });
 		this.ovrt_overlay = null;

@@ -90,6 +90,13 @@ class Config:
 		with open(self._config_path, "w+") as configfile:
 			json.dump(self._config, configfile)
 
+	def delete_safe(self, path):
+		if self.exists(path):
+			self.delete(path)
+			return True
+		else:
+			return False
+
 	def exists(self, path):
 		cur = self._config
 
