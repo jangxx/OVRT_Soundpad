@@ -36,9 +36,7 @@ from soundpad_manager import SoundpadManager
 
 global_config = Config()
 
-http_server = app.create_server(host="localhost", port=global_config.get(["server", "http_port"]), return_asyncio_server=True)
-
-main_loop = asyncio.get_event_loop()
+main_loop = asyncio.new_event_loop()
 async_stop_signal = main_loop.create_future()
 
 sp_manager = SoundpadManager()
@@ -99,15 +97,21 @@ trayicon.icon = trayimage
 # all asyncio related stuff happens here
 async def async_main():
 	try:
-		await http_server # wait for the http server to start
+		# wait for the http server to start
+		http_server = await app.create_server(
+			host="localhost", 
+			port=global_config.get(["server", "http_port"]), 
+			return_asyncio_server=True
+		)
+		await http_server.startup()
 	except OSError as e:
 		if e.errno == 10048:
 			show_error(f"Cannot bind to port {global_config.get(['server', 'http_port'])}. Is another instance of the bridge already running?")
 		else:
-			show_error(f"Could not start the websocket server: {e.strerror}")
+			show_error(f"Could not start the http server server: {e.strerror}")
 		return exit_program()
 	except Exception as e:
-		show_error(f"Could not start the websocket server: {repr(e)}")
+		show_error(f"Could not start the http server server: {repr(e)}")
 		return exit_program()
 
 	initialized_state = False

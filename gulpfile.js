@@ -4,7 +4,6 @@ const gulp = require('gulp');
 const sass = require('gulp-sass')(require('node-sass'));
 const sourcemaps = require('gulp-sourcemaps');
 const gulpif = require('gulp-if');
-const util = require('gulp-util');
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
@@ -15,8 +14,10 @@ const glob = require("glob");
 const del = require('del');
 const express = require('express');
 const fs = require('fs-extra');
+const minimist = require("minimist");
 
 const path = require('path');
+const argv = minimist(process.argv.slice(2));
 
 const paths = {
     styles: 'src/scss/*.scss',
@@ -32,7 +33,7 @@ const paths = {
 const listen_port = (process.env.GULP_PORT !== undefined) ? process.env.PORT : 8080;
 const listen_addr = (process.env.GULP_ADDR !== undefined) ? process.env.ADDR : "localhost";
 
-const is_production = util.env.production;
+const is_production = argv.production;
 
 gulp.task('clean', function() {
     return del([ 'build' ]);
@@ -59,8 +60,8 @@ gulp.task('scripts', function() {
 
 		return browserify(path.join(filepath, paths.scripts_entry), {debug: true, extensions: ['es6']})
             .transform(envify({
-                NODE_ENV: (util.env.production) ? 'production' : undefined,
-                ENV: (util.env.production) ? 'production' : 'development',
+                NODE_ENV: is_production ? 'production' : undefined,
+                ENV: is_production ? 'production' : 'development',
             }), {global: true})
             .bundle()
             .pipe(source(path.basename(filepath) + '.js'))
