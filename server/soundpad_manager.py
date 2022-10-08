@@ -90,3 +90,41 @@ class SoundpadManager(Thread):
 
 	def pauseSound(self):
 		self._remote.togglePause()
+
+	def getCategories(self):
+		if not self._remote.initialized():
+			return
+
+		self._sl_lock.acquire()
+
+		try:
+			categories_xml = self._remote.getCategories(withSounds=True)
+		except Exception as err:
+			logger.error(f"Error while parsing categories: {repr(err)}")
+			return
+		else:
+			root = ET.fromstring(categories_xml)
+
+			result = []
+
+			for category in root.iter("Category"):
+				if category.tag == "Category":
+					hidden = (category.attrib["hidden"] == "true") if "hidden" in category.attrib else False
+
+					if hidden:
+						continue
+
+					current_cat = {
+						"name": category.attrib["name"],
+						"sounds": [],
+					}
+
+					for sound in category.iter("Sound"):
+						sound_id = hashlib.sha1(str.encode(f"{sound.attrib['title']}")).hexdigest()
+						current_cat["sounds"].append(sound_id)
+
+					result.append(current_cat)
+
+			return result
+		finally:
+			self._sl_lock.release()

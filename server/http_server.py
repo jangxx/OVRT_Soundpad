@@ -17,6 +17,10 @@ async def identify(request):
 async def get_soundlist(request):
 	return response.json({ "soundlist": app.ctx.sp_manager.getSoundList() })
 
+@app.route("/api/categories")
+async def get_categories(request):
+	return response.json({ "categories": app.ctx.sp_manager.getCategories() })
+
 @app.route("/api/open-github", methods=["POST"])
 async def open_github_url(request):
 	webbrowser.open("https://github.com/jangxx/OVRT_Soundpad/releases/", new=1)

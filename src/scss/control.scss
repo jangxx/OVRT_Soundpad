@@ -136,6 +136,18 @@ main {
 	align-items: center;
 	color: white;
 
+	&.align-left {
+		align-items: flex-start;
+	}
+
+	h2 {
+		margin-top: 0px;
+		margin-bottom: 10px;
+		border-bottom-style: solid;
+		border-color: white;
+		border-width: 1px;
+	}
+
 	.dialog-buttons {
 		display: flex;
 		justify-content: end;

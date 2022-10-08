@@ -13,6 +13,7 @@ from sanic.log import logger
 class WebsocketServer:
 	def __init__(self, config: Config, sp_manager: SoundpadManager):
 		self._server = None
+		self._loop = None
 		self._config = config
 		self._soundpad = sp_manager
 
@@ -26,11 +27,17 @@ class WebsocketServer:
 		self._index_sockets = set()
 		self._control_sockets = set()
 
+	def setLoop(self, loop):
+		self._loop = loop
+
 	def start(self):
+		if not self._loop:
+			raise Exception("asyncio loop has not been set")
+
 		port = self._config.get(["server", "ws_port"])
 
 		logger.info(f"Websocket server is running on port {port}")
-		self._server = asyncio.get_event_loop().run_until_complete(websockets.serve(self.connHandler, "localhost", port))
+		self._server = self._loop.run_until_complete(websockets.serve(self.connHandler, "localhost", port))
 
 	async def stop(self):
 		self._server.close()
@@ -57,7 +64,9 @@ class WebsocketServer:
 					return # invalid values are not allowed
 
 			self._config.set(params["setting"], params["value"])
-			await self.emitEvent("settings-change", self._config.getExternalSerialized())
+
+			if not "prevent_event" in params or not params["prevent_event"]:
+				await self.emitEvent("settings-change", self._config.getExternalSerialized())
 
 		elif command == "set-edit-mode":
 			self._state["edit_mode"] = params["value"]
@@ -105,6 +114,9 @@ class WebsocketServer:
 
 		elif command == "pause-sound":
 			self._soundpad.pauseSound()
+
+		elif command == "emit-settings-change":
+			await self.emitEvent("settings-change", self._config.getExternalSerialized())
 
 		elif command == "log":
 			if "message" in params:

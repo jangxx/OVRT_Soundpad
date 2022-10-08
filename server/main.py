@@ -134,6 +134,7 @@ def main(icon):
 	icon.visible = True
 
 	asyncio.set_event_loop(main_loop)
+	ws_server.setLoop(main_loop)
 
 	try:
 		ws_server.start()

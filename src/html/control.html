@@ -76,6 +76,60 @@
 				</div>
 			</div>
 
+			<div v-if="fill_page_modal_visible" class="overlay">
+				<div class="modal-background" @click.self="fill_page_modal_visible = false"></div>
+				<div class="overlay-box dialog-box align-left" style="max-width: 800px; width: 100%">
+					<div style="margin-bottom: 20px">
+						This function allows you to add all your sounds to a board with very few clicks.
+						First select the category that you want to take the sounds from.
+						Then decide on a mode; You can decide to ignore duplicates on other pages or take them into consideration and skip them while addding.
+						Finally you can decide what to do if there are not enough pages to fit all sounds you want to add.
+						Either the remaining sounds are skipped, put onto the next pages or new pages are created at the end to fit all of them.
+					</div>
+					<label for="fillpage-categories-select">Use sounds from this category</label>
+					<select v-model="fill_page.selected_category" id="fillpage-categories-select" style="margin-bottom: 10px">
+						<option v-for="(category, index) in display_categories" :key="index" :value="index">
+							{{ category.name }}
+						</option>
+					</select>
+
+					<label for="fillpage-mode-select">Duplicate handling</label>
+					<select v-model="fill_page.selected_dup_mode" id="fillpage-mode-select" style="margin-bottom: 10px">
+						<option value="ignore">Ignore duplicates</option>
+						<option value="skip">Skip duplicates</option>
+					</select>
+
+					<label v-if="!fill_page_result.all_sounds_fit" for="fillpage-page-select">Page overflow handling</label>
+					<select v-if="!fill_page_result.all_sounds_fit" v-model="fill_page.selected_page_mode" id="fillpage-page-select" style="margin-bottom: 10px">
+						<option value="skip">Skip (don't add)</option>
+						<option value="next_page">Add to next page(s)</option>
+						<option value="create_pages">Create new page(s)</option>
+						<option value="next_create_pages">Add to next page(s) and create new ones</option>
+					</select>
+
+					<div>
+						<b>Resulting actions:</b>
+						<ul>
+							<li><i>Sounds in category:</i> {{ fill_page_result.all_sounds.length }}</li>
+							<li><i>Sounds to add to this page:</i> {{ fill_page_result.add_sounds.length }}</li>
+							<li v-if="!fill_page_result.all_sounds_fit">
+								<i>Because these sounds do not all fit on this page,</i>
+								{{ fill_page_result.final_add_sounds.length }}
+								<i>sounds will actually be added and</i>
+								{{ fill_page_result.required_additional_pages }}
+								<i v-if="fill_page_result.required_additional_pages == 1">additional page is going to be created.</i>
+								<i v-else>additional pages are going to be created.</i>
+							</li>
+						</ul>
+					</div>
+
+					<div class="dialog-buttons">
+						<div class="button blue" @click="fillPage()" style="margin-right: 5px">Fill pages</div>
+						<div class="button red" @click="fill_page_modal_visible = false">Cancel</div>
+					</div>
+				</div>
+			</div>
+
 			<div id="soundboard">
 				<div v-for="row in rows" class="button-row">
 					<div v-for="col in columns" class="soundboard-button" :style="{'background-color': 'hsl(' + ((((row-1) * columns + col-1) / (rows*columns)) * 360) + ', 65%, 50%)'}" :class="{'disabled': !edit_mode && full_board[col-1][row-1] == null }" @click="sendClick(col-1, row-1)">
@@ -94,7 +148,7 @@
 				</div>
 				<div v-else style="float: left">
 					<div class="button small red" @click="confirmClearPage()" style="margin-right: 5px">Clear Page</div>
-					<div class="button small green" @click="fillPage()">Fill Page</div>
+					<div class="button small green" @click="showFillPageModal()">Fill Page</div>
 				</div>
 				<div style="float: right" v-if="pages > 1">
 					<div v-for="page in pages" class="button small narrow" style="margin-left: 5px" :key="page" :style="{'background-color': 'hsl(' + (((page-1)/pages) * 360) + ', 65%, ' + ((page-1 == current_page) ? '50%' : '20%') + ')'}" @click="current_page = page-1">{{ page }}</div>

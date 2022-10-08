@@ -102,3 +102,11 @@ class SoundpadRemote:
 			raise Exception(str(resp, "utf8"))
 
 		return str(resp, "utf8")
+
+	def getCategories(self, withSounds=False, withIcons=False):
+		resp = self._sendRequest(f"GetCategories({withSounds}, {withIcons})")
+
+		if resp.startswith(b"R-"):
+			raise Exception(str(resp, "utf8"))
+
+		return str(resp, "utf8")
