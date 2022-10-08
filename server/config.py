@@ -37,6 +37,13 @@ class Config:
 				"http_port": 64152,
 				"ws_port": 64153
 			},
+			"osc": {
+				"enable": False,
+				"listen_port": 9001,
+				"listen_address": "127.0.0.1",
+				"play_board_address": "/ovrtsp/PlayBoard",
+				"play_index_address": "/ovrtsp/PlayIndex",
+			},
 			"overlay": {},
 			"soundpad": {
 				"autostart_path": None,

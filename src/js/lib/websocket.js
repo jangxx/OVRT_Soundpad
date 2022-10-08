@@ -46,7 +46,7 @@ class WebSocketConn extends EventTarget {
 			this._socket = null;
 			this.dispatchEvent(new Event("close"));
 
-			if (this._reconnectTimeout == null) {
+			if (this._reconnectTimeout == null && !this._preventReconnect) {
 				this._reconnectTimeout = setTimeout(() => {
 					this.open(registerType, true);
 				}, 1000); // reconnect after 1 sec

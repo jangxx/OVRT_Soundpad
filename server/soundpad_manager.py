@@ -78,6 +78,9 @@ class SoundpadManager(Thread):
 		idx = self._soundlist[sound_id]["index"]
 		self._remote.playSound(idx)
 
+	def playSoundByIndex(self, index):
+		self._remote.playSound(index)
+
 	def getSoundList(self):
 		try:
 			self._sl_lock.acquire()

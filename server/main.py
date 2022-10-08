@@ -1,3 +1,4 @@
+from queue import Queue
 import signal
 import asyncio
 import subprocess
@@ -33,14 +34,17 @@ from config import Config
 from ws_server import WebsocketServer
 from http_server import app
 from soundpad_manager import SoundpadManager
+from osc_server import OSCServer
 
 global_config = Config()
 
 main_loop = asyncio.new_event_loop()
 async_stop_signal = main_loop.create_future()
+async_messages = Queue()
 
 sp_manager = SoundpadManager()
 ws_server = WebsocketServer(global_config, sp_manager)
+osc_server = OSCServer(global_config, sp_manager)
 trayicon = None
 
 app.ctx.sp_manager = sp_manager
@@ -68,11 +72,28 @@ def show_error(message, title="Error"):
 	messagebox.showerror(title, message)
 	root.destroy()
 
+def show_info(message, title="Info"):
+	root = tk.Tk()
+	root.withdraw()
+	messagebox.showinfo(title, message)
+	root.destroy()
+
+def async_show_info(message, title="Info"):
+	async_messages.put_nowait({ "type": "info", "message": message, "title": title })
+
 def clear_soundpad_path():
 	global_config.set(["soundpad", "autostart_path"], None)
 
 def toggle_steam_autolaunch():
 	global_config.set(["soundpad", "launch_soundpad_steam"], not global_config.get(["soundpad", "launch_soundpad_steam"]))
+
+def toggle_osc_integration():
+	global_config.set(["osc", "enable"], not global_config.get(["osc", "enable"]))
+
+	if global_config.get(["osc", "enable"]):
+		async_show_info("The OSC integration has been enabled. Please restart the program for this change to have an effect")
+	else:
+		async_show_info("The OSC integration has been disabled. Please restart the program for this change to have an effect")
 
 def generate_menu():
 	if global_config.get(["soundpad", "autostart_path"]) is None and not global_config.get(["soundpad", "launch_soundpad_steam"]):
@@ -82,6 +103,11 @@ def generate_menu():
 		yield pystray.MenuItem("Clear Soundpad path", action=clear_soundpad_path)
 	if global_config.get(["soundpad", "launch_soundpad_steam"]):
 		yield pystray.MenuItem("Autostart Soundpad from Steam", action=toggle_steam_autolaunch, checked=lambda i: global_config.get(["soundpad", "launch_soundpad_steam"]))
+	if global_config.get(["osc", "enable"]):
+		yield pystray.MenuItem("Disable OSC integration", action=toggle_osc_integration)
+	else:
+		yield pystray.MenuItem("Enable OSC integration", action=toggle_osc_integration)
+
 	yield pystray.MenuItem("Exit", action=exit_program)
 
 traymenu = pystray.Menu(generate_menu)
@@ -108,24 +134,38 @@ async def async_main():
 		if e.errno == 10048:
 			show_error(f"Cannot bind to port {global_config.get(['server', 'http_port'])}. Is another instance of the bridge already running?")
 		else:
-			show_error(f"Could not start the http server server: {e.strerror}")
+			show_error(f"Could not start the http server: {e.strerror}")
 		return exit_program()
 	except Exception as e:
-		show_error(f"Could not start the http server server: {repr(e)}")
+		show_error(f"Could not start the http server: {repr(e)}")
 		return exit_program()
+
+	if global_config.get([ "osc", "enable" ]):
+		try:
+			await osc_server.start(main_loop)
+		except Exception as e:
+			show_error(f"Could not start the OSC server: {repr(e)}")
+			return exit_program()
 
 	initialized_state = False
 
+	# main loop
 	while not async_stop_signal.done():
 		if initialized_state != sp_manager.is_initialized():
 			initialized_state = sp_manager.is_initialized()
 			await ws_server.changeState("soundpad_connected", initialized_state)
+
+		if not async_messages.empty():
+			msg = async_messages.get_nowait()
+			if msg["type"] == "info":
+				show_info(msg["message"], msg["title"])
 
 		await asyncio.sleep(0.1)
 
 	# await asyncio.wait_for(async_stop_signal, None)
 
 	await ws_server.stop()
+	osc_server.stop()
 
 # main tread after pystray has spawned the tray icon
 def main(icon):
