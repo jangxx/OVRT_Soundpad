@@ -20,13 +20,17 @@ The settings are kept in a different place, so it's always safe to completely de
 
 If you want to avoid the hassle of always having to start two programs (Soundpad and the bridge), you can instruct the bridge to automatically launch Soundpad if it's not running already, in which case you only have to start the bridge app.
 
-Simply right-click on the tray icon and select "Set Soundpad path" as shown in the following picture:
+Simply right-click on the tray icon and select _Set Soundpad path_ as shown in the following picture:
 
 ![set soundpad path](assets/github/set_soundpad_path.png)
 
 You then have to navigate to the directory where Soundpad is installed and select `Soundpad.exe`.
 
-If you want to disable the auto-launch feature again, simply click on "Clear Soundpad path":
+If you use the Steam version, you instead click on _Autostart Soundpad from Steam_:
+
+![start soundpad steam](assets/github/start_soundpad_steam.png)
+
+If you want to disable the auto-launch feature again, simply click on _Clear Soundpad path_ or untick _Autostart Soundpad from Steam_ respectively:
 
 ![clear soundpad path](assets/github/clear_soundpad_path.png)
 
@@ -54,6 +58,20 @@ If the Edit Mode is turned on, each of the buttons with get a little edit icon a
 ![soundboard edit mode](assets/github/soundboard_edit_mode.png)
 
 ![soundboard sound list](assets/github/soundboard_sound_list.png)
+
+## OSC Integration
+
+Version 1.2.0 adds support to interface with the bridge via OSC.
+To enable this feature, right click on the tray icon and click on _Enable OSC integration_.
+Afterwards restart the bridge for the change to take effect.
+
+By default, the OSC server listens on `127.0.0.1:9001` and offers two addresses:
+
+- `/ovrtsp/PlayBoard i`: Sending a message to this address plays a message from one of the boards. The parameter is an integer in the range 0 - 999 where the rightmost digit is the column, the middle digit is the row and the leftmost digit is the page, all subtracted by 1. For example: If you wanted to play the sound in the 2nd column, 3rd row on the sixth page you would send the parameter `521`.
+- `/ovrtsp/PlayIndex i`: This address can be used to play a sound from Soundpad directly, skipping the board altogether. The parameter is an integer that corresponds to the sound index, which you can see by going into Soundpad, clicking on _Window > Categories > All Sounds_ and looking into the first column of the list.
+
+If you want to change the addresses or the address and port the OSC server listens on, you have to open the config file located in _%localappdata%\jangxx\OVRT Soundpad\config.json_ (you can paste this into the File Explorer directly) and edit the respective values under the `"osc"` key.
+Don't forget to quit the bridge before editing the file as your changes will be overwritten otherwise.
 
 ## Development
 
