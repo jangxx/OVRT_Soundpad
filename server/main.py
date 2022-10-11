@@ -10,6 +10,7 @@ import argparse
 import os
 import pathlib
 import webbrowser
+import traceback
 
 import pystray
 from PIL import Image
@@ -48,6 +49,7 @@ osc_server = OSCServer(global_config, sp_manager)
 trayicon = None
 
 app.ctx.sp_manager = sp_manager
+app.config.TOUCHUP = False
 sp_manager.start()
 
 def exit_program():
@@ -135,9 +137,11 @@ async def async_main():
 			show_error(f"Cannot bind to port {global_config.get(['server', 'http_port'])}. Is another instance of the bridge already running?")
 		else:
 			show_error(f"Could not start the http server: {e.strerror}")
+		traceback.print_exc()
 		return exit_program()
 	except Exception as e:
 		show_error(f"Could not start the http server: {repr(e)}")
+		traceback.print_exc()
 		return exit_program()
 
 	if global_config.get([ "osc", "enable" ]):
@@ -145,6 +149,7 @@ async def async_main():
 			await osc_server.start(main_loop)
 		except Exception as e:
 			show_error(f"Could not start the OSC server: {repr(e)}")
+			traceback.print_exc()
 			return exit_program()
 
 	initialized_state = False
@@ -183,9 +188,11 @@ def main(icon):
 			show_error(f"Cannot bind to port {global_config.get(['server', 'ws_port'])}. Is another instance of the bridge already running?")
 		else:
 			show_error(f"Could not start the websocket server: {e.strerror}")
+		traceback.print_exc()
 		return exit_program()
 	except Exception as e:
 		show_error(f"Could not start the websocket server: {repr(e)}")
+		traceback.print_exc()
 		return exit_program()
 
 	main_loop.run_until_complete(async_main())
